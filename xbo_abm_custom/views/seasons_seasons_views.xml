@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_seasons_seasons_list" model="ir.ui.view">
+            <field name="name">seasons.seasons.list</field>
+            <field name="model">seasons.seasons</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Form view -->
+        <record id="view_seasons_seasons_form" model="ir.ui.view">
+            <field name="name">seasons.seasons.form</field>
+            <field name="model">seasons.seasons</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_seasons_seasons_name" model="ir.actions.act_window">
+            <field name="name">Seasons Name</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">seasons.seasons</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create Your First Seasons Name...!
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_action_seasons_seasons"
+                  name="Seasons Name"
+                  parent="stock.menu_warehouse_config"
+                  action="action_seasons_seasons_name"
+                  sequence="22"/>
+
+    </data>
+</odoo>

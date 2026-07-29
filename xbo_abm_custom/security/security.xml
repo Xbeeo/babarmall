@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="allow_purchase_discount_conf_security_root" model="ir.module.category">
+            <field name="name">Allow Purchase Discount Configuration</field>
+            <field name="description">Purchase Discount Access Rights Management</field>
+        </record>
+
+        <record id="allow_purchase_discount_conf_priv_access" model="res.groups.privilege">
+            <field name="name">Allow Purchase Discount Configuration Access</field>
+            <field name="category_id" ref="allow_purchase_discount_conf_security_root"/>
+        </record>
+
+        <record id="group_allow_purchase_discount_conf_menu_access" model="res.groups">
+            <field name="name">Allow Purchase Discount Configuration Menu Access</field>
+            <field name="privilege_id" ref="allow_purchase_discount_conf_priv_access"/>
+        </record>
+
+        <record id="allow_sale_discount_conf_security_root" model="ir.module.category">
+            <field name="name">Allow Sale Discount Configuration</field>
+            <field name="description">Sale Discount Access Rights Management</field>
+        </record>
+
+        <record id="allow_sale_discount_conf_priv_access" model="res.groups.privilege">
+            <field name="name">Allow Sale Discount Configuration Access</field>
+            <field name="category_id" ref="allow_sale_discount_conf_security_root"/>
+        </record>
+
+        <record id="group_allow_sale_discount_conf_menu_access" model="res.groups">
+            <field name="name">Allow Sale Discount Configuration Access</field>
+            <field name="privilege_id" ref="allow_sale_discount_conf_priv_access"/>
+        </record>
+
+    </data>
+</odoo>

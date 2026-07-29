@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_city_city,city.city,model_city_city,base.group_user,1,1,1,1
+access_party_type,partytype,model_party_type,base.group_user,1,1,1,1
+access_floor_product,floor.product,model_floor_product,base.group_user,1,1,1,1
+access_brand_brand,brand.brand,model_brand_brand,base.group_user,1,1,1,1
+access_color_color,color.color,model_color_color,base.group_user,1,1,1,1
+access_size_size,size.size,model_size_size,base.group_user,1,1,1,1
+access_seasons_seasons,seasons.seasons,model_seasons_seasons,base.group_user,1,1,1,1
+access_product_template_uom_line,product.template.uom.line,model_product_template_uom_line,base.group_user,1,1,1,1

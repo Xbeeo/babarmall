@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_purchase_order_form_inherit_discount_amount" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit.discount.amount</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//div[@name='reminder']" position="after">
+                <field name="product_catg_id"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_id']" position="attributes">
+                <attribute name="domain">[('categ_id', '=', parent.product_catg_id)]</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_id']" position="before">
+                <field name="sr_no"/>
+                <field name="item_code"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='price_subtotal']" position="before">
+                <field name="discount_amount"
+                       readonly="not can_edit_discount"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='discount']" position="attributes">
+                <attribute name="readonly">not can_edit_discount</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_qty']" position="attributes">
+                    <attribute name="sum">Total</attribute>
+                </xpath>
+
+            <xpath expr="//field[@name='tax_totals']" position="before">
+                    <group class="oe_subtotal_footer">
+                        <field name="total_before_dis"
+                               widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               class="fw-bold"
+                               readonly="1"/>
+
+                        <field name="total_discount"
+                               widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               readonly="1"/>
+                    </group>
+                </xpath>
+        </field>
+    </record>
+</odoo>

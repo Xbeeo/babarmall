@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="product_pricelist_item_form_view_inherit_discount_amount" model="ir.ui.view">
+        <field name="name">product.pricelist.item.form.inherit.discount.amount</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="inherit_id" ref="product.product_pricelist_item_form_view"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//div[@class='o_row gap-3' and field[@name='percent_price']]" position="after">
+
+                <label for="discount_amount"
+                       string="Discount Amount"
+                       invisible="compute_price != 'percentage'"/>
+
+                <div class="o_row" invisible="compute_price != 'percentage'">
+                    <field name="discount_amount"/>
+                </div>
+
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

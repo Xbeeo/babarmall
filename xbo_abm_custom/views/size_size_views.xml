@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_size_size_list" model="ir.ui.view">
+            <field name="name">size.size.list</field>
+            <field name="model">size.size</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Form view -->
+        <record id="view_size_size_form" model="ir.ui.view">
+            <field name="name">size.size.form</field>
+            <field name="model">size.size</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_size_size_name" model="ir.actions.act_window">
+            <field name="name">Size Name</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">size.size</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create Your First Size Name...!
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_action_size_size"
+                  name="Size Name"
+                  parent="stock.menu_warehouse_config"
+                  action="action_size_size_name"
+                  sequence="23"/>
+
+    </data>
+</odoo>

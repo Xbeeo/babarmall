@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_move_form_inherit" model="ir.ui.view" >
+        <field name="name">account.invoice.form.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+           <xpath expr="//div[@name='journal_div']" position="after">
+               <field name="customer_credit_limit" invisible="move_type not in ['in_invoice','out_invoice']"/>
+                <field name="partner_current_balance" invisible="move_type not in ['in_invoice','out_invoice']"/>
+               <field name="start_date_time" invisible="move_type != 'out_invoice'"/>
+               <field name="end_date_time" invisible="move_type != 'out_invoice'"/>
+               <field name="sale_person_id" invisible="move_type != 'out_invoice'"/>
+            </xpath>
+            <xpath expr="//field[@name='partner_shipping_id']" position="after">
+                <field name="ref_by_id" invisible="move_type != 'out_invoice'"/>
+                <field name="product_catg_id" />
+                <field name="no_of_bags" invisible="move_type != 'out_invoice'"/>
+                <field name="no_of_ctn" invisible="move_type != 'out_invoice'"/>
+                <field name="party_type_id" invisible="move_type != 'out_invoice'"/>
+            </xpath>
+            <xpath expr="//field[@name='invoice_line_ids']/list//field[@name='quantity']" position="attributes">
+                <attribute name="sum">Total</attribute>
+            </xpath>
+
+
+
+        </field>
+
+    </record>
+
+</odoo>

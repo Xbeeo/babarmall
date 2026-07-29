@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_picking_form_inherit" model="ir.ui.view">
+            <field name="name">stock.picking.form.inherit</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook/page[last()]" position="after">
+                    <page name="custom_fields" invisible="picking_code != 'outgoing'">
+                        <group>
+                            <group >
+                                    <field name="ref_by_id"/>
+                                    <field name="no_of_bags"/>
+                                    <field name="no_of_ctn"/>
+                            </group>
+                            <field name="picking_code" invisible="1"/>
+                        </group>
+                    </page>
+                </xpath>
+                <xpath expr="//field[@name='move_ids']/list//field[@name='packaging_uom_qty']" position="attributes">
+                    <attribute name="sum">Total</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_cancel']" position="after">
+                    <button name="action_credit_notes" type="object" string="Credit Notes"/>
+                </xpath>
+
+                <xpath expr="//div[@name='button_box']" position="inside">
+
+                    <button name="action_view_credit_note" type="object" class="oe_stat_button"
+                            icon="fa-pencil-square-o">
+                        <field name="credit_total" widget="statinfo" string="Credit Note"/>
+                    </button>
+
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_move_line_tree_inherit" model="ir.ui.view">
+            <field name="name">stock.move.line.list.inherit</field>
+            <field name="model">stock.move.line</field>
+            <field name="inherit_id" ref="stock.view_move_line_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='product_id']" position="before">
+                    <field name="vendor_id"/>
+                </xpath>
+            </field>
+        </record>
+
+
+    </data>
+</odoo>

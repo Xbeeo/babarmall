@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_floor_product_list" model="ir.ui.view">
+            <field name="name">floor.product.list</field>
+            <field name="model">floor.product</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Form view -->
+        <record id="view_floor_product_form" model="ir.ui.view">
+            <field name="name">floor.product.form</field>
+            <field name="model">floor.product</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_floor_product_name" model="ir.actions.act_window">
+            <field name="name">Product Floor Name</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">floor.product</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create Your First Floor Name...!
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_action_floor_product"
+                  name="Product Floor Name"
+                  parent="stock.menu_warehouse_config"
+                  action="action_floor_product_name"
+                  sequence="20"/>
+
+    </data>
+</odoo>

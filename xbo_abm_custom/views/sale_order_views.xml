@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_order_form_inherit" model="ir.ui.view">
+            <field name="name">sale.order.form.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_id']" position="replace">
+                </xpath>
+                <xpath expr="//field[@name='payment_term_id']" position="after">
+                    <field name="customer_credit_limit"/>
+                    <field name="partner_current_balance"/>
+                    <field name="start_date_time"/>
+                    <field name="end_date_time"/>k
+                    <field name="user_id"/>
+                    <field name="salesmen_id"/>
+                    <field name="checker_id"/>
+                    <field name="packer_id"/>
+                </xpath>
+
+                <xpath expr="//field[@name='user_id']" position="attributes">
+                    <attribute name="string">Operator</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='partner_shipping_id']" position="after">
+                    <field name="partner_phone" />
+                    <field name="ref_by_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
+                    <field name="no_of_ctn" />
+                    <field name="no_of_bags" />
+                    <field name="party_type_id" />
+                </xpath>
+                <xpath expr="//field[@name='order_line']/list//field[@name='product_uom_qty']" position="attributes">
+                    <attribute name="sum">Total</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/list" position="inside">
+                    <field name="allowed_product_ids" column_invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="attributes">
+                    <attribute name="domain">[('product_variant_ids', 'in', allowed_product_ids)]</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="before">
+                    <field name="sr_no"/>
+                    <field name="item_code"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/list" position="inside">
+                    <field name="can_edit_discount" column_invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/list//field[@name='price_subtotal']" position="before">
+                    <field name="discount_amount"
+                           readonly="not can_edit_discount"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/list//field[@name='discount']" position="attributes">
+                    <attribute name="readonly">not can_edit_discount</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='tax_totals']" position="before">
+                    <group class="oe_subtotal_footer">
+                        <field name="total_before_dis"
+                               widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               class="fw-bold"
+                               readonly="1"/>
+
+                        <field name="total_discount"
+                               widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               readonly="1"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>
