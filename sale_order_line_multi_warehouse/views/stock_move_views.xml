@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="stock_picking_view_inherit" model="ir.ui.view">
+            <field name="name">stock.picking.form.inherit</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='move_ids']/list//field[@name='product_id']" position="after">
+                    <button name="action_open_warehouse_wizard"
+                        type="object"
+                        string="Tracking WH"
+                        icon="fa-home" invisible="picking_code != 'internal'"/>
+
+                </xpath>
+            </field>
+      </record>
+</odoo>
