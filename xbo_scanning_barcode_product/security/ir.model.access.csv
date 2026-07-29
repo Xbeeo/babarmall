@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_warehouse_selection_wizard,warehouse.selection.wizard,model_warehouse_selection_wizard,base.group_user,1,1,1,1
+access_warehouse_selection_wizard_line,warehouse.selection.wizard.line,model_warehouse_selection_wizard_line,base.group_user,1,1,1,1
+access_warehouse_selection_wizard_invoice,warehouse.selection.wizard.invoice,model_warehouse_selection_wizard_invoice,base.group_user,1,1,1,1
+

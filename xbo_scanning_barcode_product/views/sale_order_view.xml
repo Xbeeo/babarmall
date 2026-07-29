@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!--    Sale order form view inherited-->
+    <record id="view_order_form_barcode" model="ir.ui.view">
+        <field name="name">
+            sale.order.view.form.inherit.barcode
+        </field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_uom_qty']" position="after">
+                <field name="custom_unit_price" />
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="attributes">
+                <attribute name="string">PKT Price</attribute>
+            </xpath>
+
+
+        </field>
+    </record>
+</odoo>
