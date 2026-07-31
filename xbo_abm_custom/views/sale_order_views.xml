@@ -26,7 +26,7 @@
 
                 <xpath expr="//field[@name='partner_shipping_id']" position="after">
                     <field name="partner_phone" />
-                    <field name="ref_by_id"/>
+                    <field name="ref_by"/>
                     <field name="no_of_ctn" />
                     <field name="no_of_bags" />
                     <field name="party_type_id" />

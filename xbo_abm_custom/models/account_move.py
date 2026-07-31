@@ -6,7 +6,8 @@ class AccountMove(models.Model):
     _inherit = 'account.move'
 
     partner_current_balance = fields.Monetary(string="Current Balance", compute='_compute_partner_current_balance')
-    ref_by_id = fields.Char(string="Ref. By", readonly=True)
+    ref_by_id = fields.Many2one(comodel_name='res.partner', string="Ref. By", readonly=True)
+    ref_by = fields.Char(string="Ref. By", readonly=True)
     product_catg_id = fields.Many2one(comodel_name='product.category', string="Product Category")
     no_of_bags = fields.Integer(string="No of Bags", readonly=True)
     no_of_ctn = fields.Integer(string="No of CTN", readonly=True)
