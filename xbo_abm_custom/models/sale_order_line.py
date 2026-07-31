@@ -19,6 +19,19 @@ class SaleOrderline(models.Model):
         compute='_compute_sr_no',
         store=False
     )
+    total_pcs = fields.Float(
+        string='Total Pcs',
+        compute='_compute_total_pcs',
+    )
+
+    @api.depends('product_uom_qty','product_uom_id')
+    def _compute_total_pcs(self):
+        for line in self:
+            if line.product_uom_qty  and line.product_uom_id:
+                line.total_pcs = line.product_uom_qty * line.product_uom_id.relative_factor
+            else:
+                line.total_pcs = 0
+
 
     @api.depends('order_id.order_line')
     def _compute_sr_no(self):
@@ -59,7 +72,12 @@ class SaleOrderline(models.Model):
                 'xbo_abm_custom.group_allow_sale_discount_conf_menu_access'
             )
 
-    @api.onchange('discount_amount', 'price_unit', 'product_qty')
+    def _update_discount_amount(self):
+        for line in self:
+            total = line.price_unit * line.product_uom_qty
+            line.discount_amount = (total * line.discount) / 100 if total else 0.0
+
+    @api.onchange('discount_amount', 'price_unit', 'product_uom_qty')
     def discount_amount_onchange(self):
         if self.discount_amount:
             amt = self.price_unit * self.product_uom_qty
@@ -68,20 +86,31 @@ class SaleOrderline(models.Model):
         else:
             self.discount = 0
 
+    # @api.onchange('discount')
+    # def discount_p_onchange(self):
+    #     if self.discount:
+    #         amt = self.price_unit * self.product_uom_qty
+    #         pis_p = (amt / 100) * self.discount
+    #         self.discount_amount = pis_p
+    #     else:
+    #         self.discount_amount = 0
     @api.onchange('discount')
     def discount_p_onchange(self):
-        if self.discount:
-            amt = self.price_unit * self.product_uom_qty
-            pis_p = (amt / 100) * self.discount
-            self.discount_amount = pis_p
-        else:
-            self.discount_amount = 0
+        self._update_discount_amount()
 
     def _prepare_invoice_line(self, **optional_values):
         res = super()._prepare_invoice_line(**optional_values)
         res.update({
             'discount_amount': self.discount_amount or 0.0,
         })
+        return res
+
+    def write(self, vals):
+        res = super().write(vals)
+
+        if any(k in vals for k in ('discount', 'price_unit', 'product_uom_qty')):
+            self._update_discount_amount()
+
         return res
 
     @api.depends('product_template_id', 'product_uom_qty', 'product_uom_id','pricelist_item_id','price_unit')

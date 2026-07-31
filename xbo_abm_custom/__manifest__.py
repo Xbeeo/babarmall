@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    "name": "Xbo ABm Custom",
+    "name": "Xbo Abm Custom",
 
     'version': '19.0.0.0',
 

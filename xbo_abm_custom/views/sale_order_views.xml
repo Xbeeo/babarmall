@@ -26,13 +26,23 @@
 
                 <xpath expr="//field[@name='partner_shipping_id']" position="after">
                     <field name="partner_phone" />
-                    <field name="ref_by_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
+                    <field name="ref_by_id"/>
                     <field name="no_of_ctn" />
                     <field name="no_of_bags" />
                     <field name="party_type_id" />
                 </xpath>
+                <xpath expr="//field[@name='order_line']/list//field[@name='product_uom_id']" position="replace">
+                </xpath>
                 <xpath expr="//field[@name='order_line']/list//field[@name='product_uom_qty']" position="attributes">
                     <attribute name="sum">Total</attribute>
+                    <attribute name="string">Bundle</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/list//field[@name='product_uom_qty']" position="after">
+                    <field name="product_uom_id"/>
+                    <field name="total_pcs"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/list//field[@name='product_uom_id']" position="attributes">
+                    <attribute name="string">PCS</attribute>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/list" position="inside">
                     <field name="allowed_product_ids" column_invisible="1"/>

@@ -8,7 +8,7 @@ class SaleOrderInherit(models.Model):
     _inherit = 'sale.order'
 
     partner_current_balance = fields.Monetary(string="Current Balance", compute='_compute_partner_current_balance')
-    ref_by_id = fields.Many2one(comodel_name='res.partner', string="Ref. By")
+    ref_by_id = fields.Char(string="Ref. By")
     product_catg_id = fields.Many2one(comodel_name='product.category', string="Product Category")
     total_discount = fields.Float(
         string="Total Discount",
@@ -122,7 +122,7 @@ class SaleOrderInherit(models.Model):
 
     def _prepare_invoice(self):
         invoice_vals = super(SaleOrderInherit, self)._prepare_invoice()
-        invoice_vals['ref_by_id'] = self.ref_by_id.id
+        invoice_vals['ref_by_id'] = self.ref_by_id
         invoice_vals['sale_person_id'] = self.user_id.id
         invoice_vals['no_of_bags'] = self.no_of_bags
         invoice_vals['no_of_ctn'] = self.no_of_ctn
