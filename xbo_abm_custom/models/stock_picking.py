@@ -70,7 +70,7 @@ class StockPickingInherit(models.Model):
         for move in self.move_ids:
             invoice_lines.append((0, 0, {
                 "product_id": move.product_id.id,
-                "quantity": move.product_uom_qty,
+                "quantity": move.quantity,
             }))
 
         if self.picking_type_code == 'incoming':
