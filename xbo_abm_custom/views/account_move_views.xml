@@ -14,7 +14,7 @@
                <field name="sale_person_id" invisible="move_type != 'out_invoice'"/>
             </xpath>
             <xpath expr="//field[@name='partner_shipping_id']" position="after">
-                <field name="ref_by_id" invisible="move_type != 'out_invoice'"/>
+                <field name="ref_by" invisible="move_type != 'out_invoice'"/>
                 <field name="product_catg_id" />
                 <field name="no_of_bags" invisible="move_type != 'out_invoice'"/>
                 <field name="no_of_ctn" invisible="move_type != 'out_invoice'"/>
