@@ -13,6 +13,8 @@ class ResUsers(models.Model):
         help='Allowed Location for this user'
     )
 
+    floor_id = fields.Many2one(comodel_name='floor.product', string='Floor')
+
     def write(self, values):
         res = super().write(values)
         fields_to_check = ['allowed_location_id']

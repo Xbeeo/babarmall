@@ -130,6 +130,9 @@ class SaleOrderInherit(models.Model):
         invoice_vals['party_type_id'] = self.party_type_id.id
         invoice_vals['start_date_time'] = self.start_date_time
         invoice_vals['end_date_time'] = self.end_date_time
+        invoice_vals['sale_person_id'] = self.salesmen_id.id
+        invoice_vals['checker_id'] = self.checker_id.id
+        invoice_vals['packer_id'] = self.packer_id.id
         return invoice_vals
 
     def action_confirm(self):

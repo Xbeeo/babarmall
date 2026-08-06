@@ -12,6 +12,9 @@
                <field name="start_date_time" invisible="move_type != 'out_invoice'"/>
                <field name="end_date_time" invisible="move_type != 'out_invoice'"/>
                <field name="sale_person_id" invisible="move_type != 'out_invoice'"/>
+               <field name="checker_id" invisible="move_type != 'out_invoice'"/>
+               <field name="packer_id" invisible="move_type != 'out_invoice'"/>
+               <field name="salesmen_id" invisible="move_type != 'out_invoice'"/>
             </xpath>
             <xpath expr="//field[@name='partner_shipping_id']" position="after">
                 <field name="ref_by" invisible="move_type != 'out_invoice'"/>
@@ -20,8 +23,39 @@
                 <field name="no_of_ctn" invisible="move_type != 'out_invoice'"/>
                 <field name="party_type_id" invisible="move_type != 'out_invoice'"/>
             </xpath>
+            <xpath expr="//field[@name='sale_person_id']" position="attributes">
+                <attribute name="string">Operator</attribute>
+            </xpath>
             <xpath expr="//field[@name='invoice_line_ids']/list//field[@name='quantity']" position="attributes">
                 <attribute name="sum">Total</attribute>
+            </xpath>
+            <xpath expr="(//button[@name='action_post'])[2]" position="attributes">
+                <attribute name="invisible">hide_post_button or move_type == 'entry' or display_inactive_currency_warning or not show_confirm_button</attribute>
+            </xpath>
+            <xpath expr="//field[@name='invoice_line_ids']/list" position="inside">
+                    <field name="can_edit_discount" column_invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='invoice_line_ids']/list//field[@name='price_subtotal']" position="before">
+                    <field name="discount_amount"
+                           readonly="not can_edit_discount"/>
+                </xpath>
+                <xpath expr="//field[@name='invoice_line_ids']/list//field[@name='discount']" position="attributes">
+                    <attribute name="readonly">not can_edit_discount</attribute>
+                </xpath>
+
+            <xpath expr="//field[@name='tax_totals']" position="before">
+
+                    <field name="total_before_dis"
+                           widget="monetary"
+                           options="{'currency_field': 'currency_id'}"
+                           class="fw-bold"
+                           readonly="1"/>
+
+                    <field name="total_discount"
+                           widget="monetary"
+                           options="{'currency_field': 'currency_id'}"
+                           readonly="1"/>
+
             </xpath>
 
 

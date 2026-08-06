@@ -9,6 +9,16 @@ class AccountMoveLine(models.Model):
 
     discount_amount = fields.Float(string='Disc Amount')
     discount = fields.Float( string="Discount (%)", digits=(16, 6), default=0.0 )
+    can_edit_discount = fields.Boolean(
+        compute="_compute_can_edit_discount"
+    )
+
+    def _compute_can_edit_discount(self):
+        for line in self:
+            line.can_edit_discount = self.env.user.has_group(
+                'xbo_abm_custom.group_allow_sale_discount_conf_menu_access'
+            )
+
 
     @api.onchange('discount_amount', 'price_unit', 'product_qty')
     def discount_amount_onchange(self):

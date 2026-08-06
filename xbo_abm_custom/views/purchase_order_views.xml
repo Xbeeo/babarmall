@@ -23,6 +23,13 @@
             <xpath expr="//field[@name='order_line']/list//field[@name='discount']" position="attributes">
                 <attribute name="readonly">not can_edit_discount</attribute>
             </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_qty']" position="after">
+                <field name="custom_unit_price" />
+                <field name="sale_price" />
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="attributes">
+                <attribute name="string">PKT Price</attribute>
+            </xpath>
             <xpath expr="//field[@name='order_line']/list//field[@name='product_qty']" position="attributes">
                     <attribute name="sum">Total</attribute>
                 </xpath>

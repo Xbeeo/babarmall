@@ -16,6 +16,51 @@ class AccountMove(models.Model):
         string="Party Type",
         readonly=True
     )
+    salesmen_id = fields.Many2one(comodel_name='hr.employee', string="Salesmen")
+    checker_id = fields.Many2one(comodel_name='hr.employee', string="Checker")
+    packer_id = fields.Many2one(comodel_name='hr.employee', string="Packer")
+
+    show_confirm_button = fields.Boolean(
+        compute="_compute_show_confirm_button"
+    )
+
+    @api.depends('party_type_id')
+    def _compute_show_confirm_button(self):
+        for rec in self:
+            if rec.party_type_id.name == 'Credit':
+                rec.show_confirm_button = rec.env.user.has_group(
+                    'xbo_abm_custom.group_show_confirm_button_invoice'
+                )
+            else:
+                rec.show_confirm_button = True
+
+    total_before_dis = fields.Float(
+        string="Total Before Discount",
+        compute="_compute_total_before_dic",
+        store=True,
+    )
+    total_discount = fields.Float(
+        string="Total Discount",
+        compute="_compute_total_discount",
+        store=True,
+    )
+
+    @api.depends('invoice_line_ids.discount_amount')
+    def _compute_total_discount(self):
+        for move in self:
+            total = 0.0
+            for line in move.invoice_line_ids:
+                total += line.discount_amount
+            move.total_discount = total
+
+    @api.depends('invoice_line_ids.quantity', 'invoice_line_ids.price_unit')
+    def _compute_total_before_dic(self):
+        for move in self:
+            total = 0.0
+            for line in move.invoice_line_ids:
+                total += line.quantity * line.price_unit
+            move.total_before_dis = total
+
     customer_credit_limit = fields.Integer(string="Credit limit",readonly=True)
     start_date_time = fields.Datetime(string="Start Date Time", readonly=True)
     end_date_time = fields.Datetime(string="End Date Time", readonly=True)
