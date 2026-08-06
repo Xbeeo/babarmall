@@ -112,11 +112,14 @@ class PDC_wizard(models.Model):
         invoices = self.env['account.move'].browse(active_ids)
         if invoices and len(invoices) == 1:
             invoice = invoices[0]
+            pdc_type = 'vendor'
             if invoice.move_type in ('out_invoice', 'out_refund'):
                 rec.update({'payment_type': 'receive_money'})
+                pdc_type = 'customer'
 
             rec.update({'partner_id': invoice.partner_id.id,
                         'payment_amount': invoice.amount_residual,
+                        'pdc_type': pdc_type,
                         'invoice_id': invoice.id,
                         'due_date': invoice.invoice_date_due,
                         'memo': invoice.name})
@@ -173,7 +176,7 @@ class PDC_wizard(models.Model):
 
     @api.onchange('pdc_type')
     def _onchange_pdc_type(self):
-        self.partner_id = False
+        # self.partner_id = False
 
         if self.pdc_type == 'customer':
             return {
@@ -283,14 +286,14 @@ class PDC_wizard(models.Model):
 
         if self.pdc_type == 'customer':
 
-            move_line_vals_debit = self.get_debit_move_line(pdc_account)
-            move_line_vals_credit = self.get_credit_move_line(partner_account)
+            move_line_vals_debit = self.get_debit_move_line(pdc_account , partner=None)
+            move_line_vals_credit = self.get_credit_move_line(partner_account , partner=self.partner_id.id)
 
 
         elif self.pdc_type == 'vendor':
 
-            move_line_vals_debit = self.get_debit_move_line(partner_account)
-            move_line_vals_credit = self.get_credit_move_line(pdc_account)
+            move_line_vals_debit = self.get_debit_move_line(partner_account , partner=self.partner_id.id)
+            move_line_vals_credit = self.get_credit_move_line(pdc_account , partner=None)
 
         move_vals = self.get_move_vals(
             move_line_vals_debit,
@@ -301,14 +304,14 @@ class PDC_wizard(models.Model):
             self.invoice_ids.mapped('amount_residual')
         )
 
-        if self.invoice_ids and total_amount_residuals != 0:
-            move_id = move.create(move_vals)
-            move_id.action_post()
+        # if self.invoice_ids and total_amount_residuals != 0:
+        move_id = move.create(move_vals)
+        move_id.action_post()
 
-            self.write({
-                'deposited_debit': move_id.line_ids.filtered(lambda x: x.debit > 0),
-                'deposited_credit': move_id.line_ids.filtered(lambda x: x.credit > 0)
-            })
+        self.write({
+            'deposited_debit': move_id.line_ids.filtered(lambda x: x.debit > 0),
+            'deposited_credit': move_id.line_ids.filtered(lambda x: x.credit > 0)
+        })
 
         self.write({'state': 'registered'})
 
@@ -354,24 +357,24 @@ class PDC_wizard(models.Model):
         self.check_payment_amount()
         self.write({'state': 'returned'})
 
-    def get_credit_move_line(self, account):
+    def get_credit_move_line(self, account , partner):
         return {
             'pdc_id': self.id,
-            # 'partner_id': self.partner_id.id,
+            'partner_id': partner,
             'account_id': account,
             'credit': self.payment_amount,
-            'ref': self.memo,
+            'name': self.memo,
             'date': self.payment_date,
             'date_maturity': self.due_date,
         }
 
-    def get_debit_move_line(self, account):
+    def get_debit_move_line(self, account , partner):
         return {
             'pdc_id': self.id,
-            # 'partner_id': self.partner_id.id,
+            'partner_id': partner,
             'account_id': account,
             'debit': self.payment_amount,
-            'ref': self.memo,
+            'name': self.memo,
             'date': self.payment_date,
             'date_maturity': self.due_date,
         }
@@ -420,47 +423,58 @@ class PDC_wizard(models.Model):
         #                 'deposited_credit': move_id.line_ids.filtered(lambda x: x.credit > 0)})
 
     def action_bounced(self):
-        move = self.env['account.move']
-
-        self.check_payment_amount()  # amount must be positive
-        pdc_account = self.check_pdc_account()
-        partner_account = self.get_partner_account()
-
-        # Create Journal Item
-        move_line_vals_debit = {}
-        move_line_vals_credit = {}
-
-        # if self.payment_type == 'receive_money':
-        #     move_line_vals_debit = self.get_debit_move_line(partner_account)
-        #     move_line_vals_credit = self.get_credit_move_line(pdc_account)
-
-        if self.pdc_type == 'customer':
-
-            move_line_vals_debit = self.get_debit_move_line(partner_account)
-            move_line_vals_credit = self.get_credit_move_line(pdc_account)
-
-        elif self.pdc_type == 'vendor':
-
-            move_line_vals_debit = self.get_debit_move_line(pdc_account)
-            move_line_vals_credit = self.get_credit_move_line(partner_account)
-
-        if self.memo:
-            move_line_vals_debit.update({'name': 'PDC Payment :'+self.memo})
-            move_line_vals_credit.update({'name': 'PDC Payment :'+self.memo})
-        else:
-            move_line_vals_debit.update({'name': 'PDC Payment'})
-            move_line_vals_credit.update({'name': 'PDC Payment'})
-        # create move and post it
-        move_vals = self.get_move_vals(
-            move_line_vals_debit, move_line_vals_credit)
-
-        total_amount_residuals = sum(
-            self.invoice_ids.mapped('amount_residual'))
-        if self.invoice_ids and total_amount_residuals != 0:
-            move_id = move.create(move_vals)
-            move_id.action_post()
+        # move = self.env['account.move']
+        #
+        # self.check_payment_amount()  # amount must be positive
+        # pdc_account = self.check_pdc_account()
+        # partner_account = self.get_partner_account()
+        #
+        # # Create Journal Item
+        # move_line_vals_debit = {}
+        # move_line_vals_credit = {}
+        #
+        # # if self.payment_type == 'receive_money':
+        # #     move_line_vals_debit = self.get_debit_move_line(partner_account)
+        # #     move_line_vals_credit = self.get_credit_move_line(pdc_account)
+        #
+        # if self.pdc_type == 'customer':
+        #
+        #     move_line_vals_debit = self.get_debit_move_line(partner_account , partner=self.partner_id.id)
+        #     move_line_vals_credit = self.get_credit_move_line(pdc_account , partner=None)
+        #
+        # elif self.pdc_type == 'vendor':
+        #
+        #     move_line_vals_debit = self.get_debit_move_line(pdc_account , partner=None)
+        #     move_line_vals_credit = self.get_credit_move_line(partner_account , partner=self.partner_id.id)
+        #
+        # if self.memo:
+        #     move_line_vals_debit.update({'name': 'PDC Payment :'+self.memo})
+        #     move_line_vals_credit.update({'name': 'PDC Payment :'+self.memo})
+        # else:
+        #     move_line_vals_debit.update({'name': 'PDC Payment'})
+        #     move_line_vals_credit.update({'name': 'PDC Payment'})
+        # # create move and post it
+        # move_vals = self.get_move_vals(
+        #     move_line_vals_debit, move_line_vals_credit)
+        #
+        # total_amount_residuals = sum(
+        #     self.invoice_ids.mapped('amount_residual'))
+        # # if self.invoice_ids and total_amount_residuals != 0:
+        # move_id = move.create(move_vals)
+        # move_id.action_post()
 
         self.write({'state': 'bounced'})
+        move = self.env['account.move'].search([('pdc_id', '=', self.id)], limit=1)
+
+        if move:
+            reversal = self.env['account.move.reversal'].create({
+                'move_ids': [(6, 0, move.ids)],
+                'date': fields.Date.today(),
+                'reason': 'PDC Reversal',
+                'journal_id': move.journal_id.id,
+            })
+
+            reversal.refund_moves()
 
     # def action_done(self):
     #     move = self.env['account.move']
@@ -666,8 +680,8 @@ class PDC_wizard(models.Model):
         # Cr PDC Account
         if self.pdc_type == 'customer':
 
-            move_line_vals_debit = self.get_debit_move_line(bank_account)
-            move_line_vals_credit = self.get_credit_move_line(pdc_account)
+            move_line_vals_debit = self.get_debit_move_line(bank_account , partner=None)
+            move_line_vals_credit = self.get_credit_move_line(pdc_account , partner=None)
 
 
         # Vendor PDC
@@ -675,23 +689,23 @@ class PDC_wizard(models.Model):
         # Cr Bank
         elif self.pdc_type == 'vendor':
 
-            move_line_vals_debit = self.get_debit_move_line(pdc_account)
-            move_line_vals_credit = self.get_credit_move_line(bank_account)
+            move_line_vals_debit = self.get_debit_move_line(pdc_account,partner=None)
+            move_line_vals_credit = self.get_credit_move_line(bank_account,partner=None)
 
-        if self.memo:
-            name = 'PDC Payment : ' + self.memo
-        else:
-            name = 'PDC Payment'
-
-        move_line_vals_debit.update({
-            'name': name,
-            'partner_id': self.partner_id.id
-        })
-
-        move_line_vals_credit.update({
-            'name': name,
-            'partner_id': self.partner_id.id
-        })
+        # if self.memo:
+        #     name = 'PDC Payment : ' + self.memo
+        # else:
+        #     name = 'PDC Payment'
+        #
+        # move_line_vals_debit.update({
+        #     'name': name,
+        #     'partner_id': self.partner_id.id
+        # })
+        #
+        # move_line_vals_credit.update({
+        #     'name': name,
+        #     'partner_id': self.partner_id.id
+        # })
 
         move_vals = self.get_move_vals(
             move_line_vals_debit,
@@ -707,64 +721,64 @@ class PDC_wizard(models.Model):
             move_id = move.create(move_vals)
             move_id.action_post()
 
-            payment_amount = self.payment_amount
+            # payment_amount = self.payment_amount
 
-            for invoice in self.invoice_ids:
-
-                # ===========================
-                # CUSTOMER INVOICE
-                # ===========================
-                if self.pdc_type == 'customer':
-
-                    invoice_line = self.env['account.move.line'].sudo().search([
-                        ('move_id', '=', invoice.id),
-                        ('debit', '>', 0)
-                    ], limit=1)
-
-                    payment_line = self.env['account.move.line'].sudo().search([
-                        ('move_id', '=', move_id.id),
-                        ('credit', '>', 0)
-                    ], limit=1)
-
-
-
-                # ===========================
-                # VENDOR BILL
-                # ===========================
-                else:
-
-                    invoice_line = self.env['account.move.line'].sudo().search([
-                        ('move_id', '=', invoice.id),
-                        ('credit', '>', 0)
-                    ], limit=1)
-
-                    payment_line = self.env['account.move.line'].sudo().search([
-                        ('move_id', '=', move_id.id),
-                        ('debit', '>', 0)
-                    ], limit=1)
-
-                if invoice_line and payment_line and payment_amount > 0:
-
-                    if payment_amount > invoice.amount_residual:
-                        amount = invoice.amount_residual
-                    else:
-                        amount = payment_amount
-
-                    payment_amount -= amount
-
-                    self.env['account.partial.reconcile'].sudo().create({
-
-                        'debit_move_id': invoice_line.id if invoice_line.debit else payment_line.id,
-
-                        'credit_move_id': payment_line.id if payment_line.credit else invoice_line.id,
-
-                        'amount': amount,
-
-                        'debit_amount_currency': amount,
-
-                        'credit_amount_currency': amount,
-
-                    })
+            # for invoice in self.invoice_ids:
+            #
+            #     # ===========================
+            #     # CUSTOMER INVOICE
+            #     # ===========================
+            #     if self.pdc_type == 'customer':
+            #
+            #         invoice_line = self.env['account.move.line'].sudo().search([
+            #             ('move_id', '=', invoice.id),
+            #             ('debit', '>', 0)
+            #         ], limit=1)
+            #
+            #         payment_line = self.env['account.move.line'].sudo().search([
+            #             ('move_id', '=', move_id.id),
+            #             ('credit', '>', 0)
+            #         ], limit=1)
+            #
+            #
+            #
+            #     # ===========================
+            #     # VENDOR BILL
+            #     # ===========================
+            #     else:
+            #
+            #         invoice_line = self.env['account.move.line'].sudo().search([
+            #             ('move_id', '=', invoice.id),
+            #             ('credit', '>', 0)
+            #         ], limit=1)
+            #
+            #         payment_line = self.env['account.move.line'].sudo().search([
+            #             ('move_id', '=', move_id.id),
+            #             ('debit', '>', 0)
+            #         ], limit=1)
+            #
+            #     if invoice_line and payment_line and payment_amount > 0:
+            #
+            #         if payment_amount > invoice.amount_residual:
+            #             amount = invoice.amount_residual
+            #         else:
+            #             amount = payment_amount
+            #
+            #         payment_amount -= amount
+            #
+            #         self.env['account.partial.reconcile'].sudo().create({
+            #
+            #             'debit_move_id': invoice_line.id if invoice_line.debit else payment_line.id,
+            #
+            #             'credit_move_id': payment_line.id if payment_line.credit else invoice_line.id,
+            #
+            #             'amount': amount,
+            #
+            #             'debit_amount_currency': amount,
+            #
+            #             'credit_amount_currency': amount,
+            #
+            #         })
 
 
         else:
@@ -776,12 +790,12 @@ class PDC_wizard(models.Model):
             if self.pdc_type == 'customer':
 
                 debit_account = bank_account
-                credit_account = partner_account
+                credit_account = pdc_account
 
 
             else:
 
-                debit_account = partner_account
+                debit_account = pdc_account
                 credit_account = bank_account
 
             move_vals = {
@@ -795,19 +809,21 @@ class PDC_wizard(models.Model):
 
                     (0, 0, {
                         'pdc_id': self.id,
-                        'partner_id': self.partner_id.id,
+                        'partner_id': None,
                         'account_id': debit_account,
                         'debit': self.payment_amount,
                         'date': self.due_date,
+                        'name': self.memo,
                         'date_maturity': self.due_date,
                     }),
 
                     (0, 0, {
                         'pdc_id': self.id,
-                        'partner_id': self.partner_id.id,
+                        'partner_id': None,
                         'account_id': credit_account,
                         'credit': self.payment_amount,
                         'date': self.due_date,
+                        'name': self.memo,
                         'date_maturity': self.due_date,
                     })
 

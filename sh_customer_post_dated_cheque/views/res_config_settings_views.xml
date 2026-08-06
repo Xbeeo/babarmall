@@ -14,10 +14,12 @@
 						<field name="pdc_customer" />
 					</setting>
 					<setting>
-						<field name="pdc_vendor" />
-					</setting>
-					<setting>
 						<field name="auto_fill_open_invoice" />
+					</setting>
+				</block>
+				<block title="Vendor PDC Payment" name="sh_pdc_payment_vendor">
+					<setting>
+						<field name="pdc_vendor" />
 					</setting>
 				</block>
 				<block title="PDC Cancel Configuration" name="sh_pdc_cancel_config">
