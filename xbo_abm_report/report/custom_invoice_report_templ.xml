@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="action_custom_invoice_report_template">
+        <t t-call="web.html_container">
+            <t t-call="xbo_abm_report.custom_external_layout_standard_templ">
+                <t t-foreach="docs" t-as="o">
+                    <style>
+                        .custom-table, .custom-table td {
+                            border: 1px solid black;
+                        }
+                        .custom-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                        }
+                    </style>
+                    <div class="row" style="font-size: 10px;">
+                        <div class="col-4" style="text-align: left;">
+                        </div>
+                        <div class="col-4" style="text-align: center;">
+                            <t t-if="o.start_date_time">
+                                <t t-set="start_time" t-value="o.start_date_time + datetime.timedelta(hours=5)"/>
+                                <t t-esc="start_time.strftime('%I:%M:%S %p')"/>
+                            </t>
+
+                            <t t-if="o.start_date_time and o.end_date_time">
+                                __
+                            </t>
+
+                            <t t-if="o.end_date_time">
+                                <t t-set="end_time" t-value="o.end_date_time + datetime.timedelta(hours=5)"/>
+                                <t t-esc="end_time.strftime('%I:%M:%S %p')"/>
+                            </t>
+                        </div>
+                        <div class="col-4" style="text-align: right;">
+                        </div>
+                    </div>
+                    <div class="row" style="font-size: 15px;">
+                        <div class="col-9" style="text-align: left;">
+                            <t t-esc="o.partner_id.sequence_customer"/> . <t t-esc="o.partner_id.name"/>
+                        </div>
+                        <div class="col-3" style="text-align: right;">
+                            <t t-if="o.invoice_date">
+                                <t t-esc="o.invoice_date.strftime('%d-%b-%Y')"/>
+                            </t>
+                        </div>
+                    </div>
+                    <div class="row" style="font-size: 15px;">
+                        <div class="col-6" style="text-align: left;">
+                            <t t-esc="o.partner_id.city_id.name"/>
+                        </div>
+                        <div class="col-3" style="text-align: right;">
+                            <strong><t t-esc="o.party_type_id.name"/></strong>
+                        </div>
+                        <div class="col-3" style="text-align: right;">
+                            <strong><t t-esc="o.name"/></strong>
+                        </div>
+                    </div>
+                    <div class="row" style="font-size: 15px;">
+                        <div class="col-6" style="text-align: left;">
+                            <t t-esc="o.partner_id.phone"/>
+                        </div>
+                        <div class="col-6" style="text-align: right;">
+                            <t t-if="o.user_id.floor_id">
+                                <strong><t t-esc="o.user_id.floor_id.name"/></strong>
+                            </t>
+                        </div>
+                    </div>
+
+                    <table class="custom-table" style="font-size: 11px;">
+                        <thead>
+                            <tr style="background-color: #c2d6d6;">
+                                <th style="font-weight: bold;" class="text-center">Sr.</th>
+                                <th style="font-weight: bold;" class="text-center">Item Code</th>
+                                <th style="font-weight: bold;" class="text-center">Description</th>
+                                <th style="font-weight: bold;" class="text-center">Qty</th>
+                                <th style="font-weight: bold;" class="text-center">Rate</th>
+                                <th style="font-weight: bold;" class="text-center">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="sr_no" t-value="0"/>
+                            <t t-set="total_amount" t-value="0"/>
+                            <t t-set="total_qty" t-value="0"/>
+                            <t t-foreach="o.invoice_line_ids" t-as="line">
+                                <tr>
+                                    <td class="text-center">
+                                        <t t-set="sr_no" t-value="sr_no + 1"/>
+                                        <span t-esc="sr_no"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <t t-esc="line.product_id.barcode"/>
+                                    </td>
+                                    <td class="text-start">
+                                        <t t-esc="line.product_id.display_name"/>
+                                        <t t-esc="line.name"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <t t-esc="int(line.quantity)*int(line.product_uom_id.relative_factor)"/>
+                                        <t t-set="total_qty" t-value="total_qty + (int(line.quantity)*int(line.product_uom_id.relative_factor))"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <t t-esc="'{:,.0f}'.format(line.product_id.lst_price)"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <t t-esc="'{:,.0f}'.format(round(line.product_id.lst_price*(int(line.quantity)*int(line.product_uom_id.relative_factor))))"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+
+                    </table>
+
+                    <div style="page-break-inside: avoid; margin-top:20px;">
+                        <div class="row" style="font-size: 15px;">
+                            <div class="col-2" style="text-align: left;">
+                            </div>
+                            <div class="col-4" style="text-align: center;">
+                                <strong>Net Quantity: </strong><t t-esc="int(total_qty)"/>
+                            </div>
+                            <div class="col-6" style="text-align: right;">
+                                Gross Amount:  <strong><t t-esc="'{:,.0f}'.format(o.total_before_dis)"/></strong>
+                            </div>
+                        </div>
+                        <div class="row" style="font-size: 15px;">
+                            <div class="col-8" style="text-align: left;">
+                            </div>
+                            <div class="col-4" style="text-align: right;">
+                                Discount: <strong> <t t-esc="'{:,.0f}'.format(o.total_discount)"/> </strong>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:30px; text-align:center;font-size: 12px;">
+                            <div class="col-3">
+                                <t t-esc="o.packer_id.name or ''"/>
+                                <div style="border-top:1px solid #000; margin-top:5px; padding-top:5px;">
+                                    <strong>Packer</strong>
+                                </div>
+                            </div>
+                            <div class="col-1"></div>
+
+                            <div class="col-3">
+                                <t t-esc="o.checker_id.name or ''"/>
+                                <div style="border-top:1px solid #000; margin-top:5px; padding-top:5px;">
+                                    <strong>Checker</strong>
+                                </div>
+                            </div>
+                            <div class="col-1"></div>
+
+                            <div class="col-4">
+                                <t t-esc="o.salesmen_id.name or ''"/>
+                                <div style="border-top:1px solid #000; margin-top:5px; padding-top:5px;">
+                                    <strong>Salesman</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <strong><hr/></strong>
+                        <div class="row" style="font-size: 20px;">
+                            <div class="col-6" style="text-align: left;">
+                                <strong><t t-esc="o.no_of_ctn"/> CTN <t t-esc="o.no_of_bags"/> BAG</strong>
+                            </div>
+                            <div class="col-6" style="text-align: right;">
+                                <strong>Rs. <t t-esc="'{:,.0f}'.format(o.amount_total)"/></strong>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+
+    </template>
+
+</odoo>
