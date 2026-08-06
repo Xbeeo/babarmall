@@ -17,8 +17,8 @@
     'depends': ['base', 'sale_management', 'web', 'stock','purchase','xbo_abm_custom'],
 
     "data": [
-        'views/purchase_order_views.xml',
-        'views/sale_order_view.xml',
+        # 'views/purchase_order_views.xml',
+        # 'views/sale_order_view.xml',
     ],
     "assets": {
             "web.assets_backend": [

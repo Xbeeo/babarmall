@@ -44,23 +44,23 @@ class SaleOrder(models.Model):
             "name": product_uom.product_id.display_name,
         }
 
-class SaleOrderLine(models.Model):
-    _inherit = "sale.order.line"
-
-    custom_unit_price = fields.Float(string="Unit Price")
-
-    @api.onchange('product_id')
-    def _onchange_product_id_custom(self):
-        for line in self:
-            if line.product_template_id:
-                template = line.product_template_id
-
-                parts = [
-                    template.brand_id.name if template.brand_id else "",
-                    template.color_id.name if template.color_id else "",
-                    template.size_id.name if template.size_id else "",
-                    template.seasons_id.name if template.seasons_id else "",
-                ]
-
-                line.name = " - ".join(filter(None, parts))
-                line.custom_unit_price = line.product_id.lst_price
+# class SaleOrderLine(models.Model):
+#     _inherit = "sale.order.line"
+#
+#     custom_unit_price = fields.Float(string="Unit Price")
+#
+#     @api.onchange('product_id')
+#     def _onchange_product_id_custom(self):
+#         for line in self:
+#             if line.product_template_id:
+#                 template = line.product_template_id
+#
+#                 parts = [
+#                     template.brand_id.name if template.brand_id else "",
+#                     template.color_id.name if template.color_id else "",
+#                     template.size_id.name if template.size_id else "",
+#                     template.seasons_id.name if template.seasons_id else "",
+#                 ]
+#
+#                 line.name = " - ".join(filter(None, parts))
+#                 line.custom_unit_price = line.product_id.lst_price
