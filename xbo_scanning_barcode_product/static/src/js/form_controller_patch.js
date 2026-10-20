@@ -10,25 +10,17 @@ patch(FormController.prototype, {
 
         super.setup(...arguments);
 
+        window.barcodeFormController = this;
 
-        setTimeout(() => {
+        console.log(
+            "Barcode Controller Stored",
+            this
+        );
 
-            window.barcodeFormController = this;
-
-
-            console.log(
-                "Barcode Controller Stored",
-                this
-            );
-
-
-            console.log(
-                "Barcode Model",
-                this.model
-            );
-
-
-        }, 1000);
+        console.log(
+            "Barcode Model",
+            this.model
+        );
 
     },
 

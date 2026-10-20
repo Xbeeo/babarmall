@@ -1,0 +1,35 @@
+/* =========================================================
+   ORDER LINES: header fixed + andar vertical scroll
+   Applies to: sale.order / purchase.order (order_line)
+               stock.picking (move_ids_without_package)
+   ========================================================= */
+
+/* 1. Table ke liye scroll box (height yahan se adjust karo) */
+.o_form_view .o_field_widget[name="order_line"] .o_list_renderer,
+.o_form_view .o_field_widget[name="move_ids_without_package"] .o_list_renderer {
+    max-height: 420px;   /* ~6-7 rows. Zyada/kam chahiye to badlo, ya 60vh use karo */
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+/* 2. Header sticky */
+.o_form_view .o_field_widget[name="order_line"] .o_list_table thead th,
+.o_form_view .o_field_widget[name="move_ids_without_package"] .o_list_table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background-color: var(--o-view-background-color, #fff);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+}
+
+/* 3. Totals row (Bundle / Total Pcs) neeche sticky (optional) */
+.o_form_view .o_field_widget[name="order_line"] .o_list_table tfoot td,
+.o_form_view .o_field_widget[name="order_line"] .o_list_table tfoot th,
+.o_form_view .o_field_widget[name="move_ids_without_package"] .o_list_table tfoot td,
+.o_form_view .o_field_widget[name="move_ids_without_package"] .o_list_table tfoot th {
+    position: sticky;
+    bottom: 0;
+    z-index: 4;
+    background-color: var(--o-view-background-color, #fff);
+    box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12);
+}

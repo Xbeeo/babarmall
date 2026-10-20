@@ -1,0 +1,21 @@
+.o_list_view {
+
+    tr.barcode-scanned-line {
+
+        background-color: #fff3cd !important;
+
+        > td {
+            background-color: #fff3cd !important;
+        }
+
+        td {
+            background-color: #fff3cd !important;
+        }
+
+        &:hover,
+        &:hover > td,
+        &:hover td {
+            background-color: #fff3cd !important;
+        }
+    }
+}
