@@ -12,24 +12,62 @@
                 </xpath>
 
                 <xpath expr="//field[@name='supplier_taxes_id']" position="after">
-                    <field name="margin_percentage" />
+                    <field name="margin_percentage"/>
                 </xpath>
 
                 <xpath expr="//group[@name='internal_notes']" position="before">
                     <group name="custom_fields" string="Custom Fields">
                         <group>
-                            <field name="partner_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
-                            <field name="floor_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
+                            <field name="partner_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
+                            <field name="floor_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
                         </group>
                         <group>
-                            <field name="brand_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
-                            <field name="color_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
-                            <field name="size_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
-                            <field name="seasons_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
+                            <field name="brand_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
+                            <field name="color_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
+                            <field name="size_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
+                            <field name="seasons_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
                         </group>
                     </group>
                 </xpath>
 
+            </field>
+        </record>
+
+        <record id="product_product_tree_view_inherit_custom" model="ir.ui.view">
+            <field name="name">product.product.list.custom</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_product_tree_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="brand_id" optional="show"/>
+                    <field name="color_id" optional="show"/>
+                    <field name="size_id" optional="show"/>
+                    <field name="discount_percent"/>
+                    <field name="discount_amount"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="product_view_list_catalog" model="ir.ui.view">
+            <field name="name">product.view.list.catalog</field>
+            <field name="model">product.product</field>
+            <field name="arch" type="xml">
+                <list editable="bottom" create="0" delete="0"
+                      default_order="is_favorite desc, default_code, name, id">
+                    <field name="default_code" readonly="1"/>
+                    <field name="display_name" string="Product" readonly="1"/>
+                    <field name="brand_id" optional="show" readonly="1"/>
+                    <field name="color_id" optional="show" readonly="1"/>
+                    <field name="size_id" optional="show" readonly="1"/>
+                    <field name="lst_price" string="Price" readonly="1"/>
+                    <field name="qty_available" optional="show" readonly="1"/>
+                    <field name="catalog_qty" string="Qty"/>
+                </list>
             </field>
         </record>
     </data>

@@ -2,6 +2,7 @@
 
 from odoo import fields, models, api, _
 from odoo.exceptions import ValidationError
+from odoo.osv import expression
 
 class ProductTemplateInherit(models.Model):
     _inherit = 'product.template'
@@ -16,6 +17,65 @@ class ProductTemplateInherit(models.Model):
     margin_percentage = fields.Float(
         string='Margin %',
     )
+    is_in_pricelist = fields.Boolean(
+        string="In Pricelist",
+        compute='_compute_is_in_pricelist',
+        search='_search_is_in_pricelist',
+        store=False,
+    )
+    discount_percent = fields.Float(string='Disc. %', compute='_compute_pricelist_discount')
+    discount_amount = fields.Float(string='Disc Amt', compute='_compute_pricelist_discount')
+
+    @api.depends('brand_id', 'color_id', 'size_id')
+    def _compute_display_name(self):
+        super()._compute_display_name()
+        for product in self:
+            parts = [product.display_name]
+            for field in ('brand_id', 'color_id', 'size_id'):
+                value = product[field]
+                if value:
+                    parts.append(value.name)
+            product.display_name = " - ".join(filter(None, parts))
+
+    def _compute_pricelist_discount(self):
+        pricelist_id = self.env.context.get('discount_pricelist_id')
+        items = {}
+        if pricelist_id:
+            for item in self.env['product.pricelist.item'].search([
+                ('pricelist_id', '=', pricelist_id),
+                ('product_tmpl_id', 'in', self.ids),
+                ('applied_on', '=', '1_product'),
+            ]):
+                items.setdefault(item.product_tmpl_id.id, item)  # first matching rule
+        for rec in self:
+            item = items.get(rec.id)
+            rec.discount_percent = item.percent_price if item else 0.0
+            rec.discount_amount = item.discount_amount if item else 0.0
+
+    def _pricelist_item_domain(self):
+        domain = [('product_tmpl_id', '!=', False)]
+        pricelist_id = self.env.context.get('discount_pricelist_id')
+        if pricelist_id:
+            domain.append(('pricelist_id', '=', pricelist_id))
+        return domain
+
+    def _compute_is_in_pricelist(self):
+        domain = self._pricelist_item_domain() + [('product_tmpl_id', 'in', self.ids)]
+        items = self.env['product.pricelist.item']._read_group(
+            domain=domain, groupby=['product_tmpl_id'],
+        )
+        tmpl_ids_with_rule = {tmpl.id for tmpl, in items}
+        for product in self:
+            product.is_in_pricelist = product.id in tmpl_ids_with_rule
+
+    def _search_is_in_pricelist(self, operator, value):
+        items = self.env['product.pricelist.item']._read_group(
+            domain=self._pricelist_item_domain(), groupby=['product_tmpl_id'],
+        )
+        tmpl_ids_with_rule = [tmpl.id for tmpl, in items]
+        if (operator == '=' and value) or (operator == '!=' and not value):
+            return [('id', 'in', tmpl_ids_with_rule)]
+        return [('id', 'not in', tmpl_ids_with_rule)]
 
     @api.onchange('margin_percentage')
     def _onchange_margin_percentage(self):
@@ -95,6 +155,65 @@ class ProductTemplateInherit(models.Model):
                 vals['barcode'] = self.env['ir.sequence'].next_by_code('bm.sequence')
 
         return super().create(vals_list)
+
+    @api.model
+    def name_search(self, name='', domain=None, operator='ilike', limit=100):
+        domain = domain or []
+
+        if name:
+            # =========================================
+            # NORMAL PRODUCT SEARCH
+            # + PRODUCT.UOM BARCODE SEARCH
+            # =========================================
+
+            product_uoms = self.env['product.uom'].search([
+                ('barcode', 'ilike', name),
+            ])
+
+            uom_product_ids = product_uoms.mapped(
+                'product_id.product_tmpl_id'
+            ).ids
+
+            search_domain = expression.OR([
+                # Normal product fields
+                [
+                    ('name', operator, name),
+                ],
+                [
+                    ('default_code', operator, name),
+                ],
+                [
+                    ('barcode', operator, name),
+                ],
+
+                # product.uom barcode
+                [
+                    ('id', 'in', uom_product_ids),
+                ],
+            ])
+
+            products = self.search(
+                expression.AND([
+                    domain,
+                    search_domain,
+                ]),
+                limit=limit
+            )
+
+            return [
+                (product.id, product.display_name)
+                for product in products
+            ]
+
+        products = self.search(
+            domain,
+            limit=limit
+        )
+
+        return [
+            (product.id, product.display_name)
+            for product in products
+        ]
 
 class ProductTemplateUomLine(models.Model):
     _name = "product.template.uom.line"

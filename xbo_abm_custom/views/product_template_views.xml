@@ -13,37 +13,59 @@
                 </xpath>
 
                 <xpath expr="//field[@name='supplier_taxes_id']" position="after">
-                    <field name="margin_percentage" />
+                    <field name="margin_percentage"/>
                 </xpath>
 
                 <xpath expr="//group[@name='internal_notes']" position="before">
                     <group name="custom_fields" string="Custom Fields">
                         <group>
-                            <field name="partner_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
-                            <field name="floor_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
+                            <field name="partner_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
+                            <field name="floor_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
                         </group>
                         <group>
-                            <field name="brand_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
-                            <field name="color_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
-                            <field name="size_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
-                            <field name="seasons_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
+                            <field name="brand_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
+                            <field name="color_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
+                            <field name="size_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
+                            <field name="seasons_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True, 'no_create': True}"/>
                         </group>
                     </group>
                     <group name="Product Packaging" string="product_packaging">
-                        <field name="uom_line_ids" widget="section_and_note_one2many" nolable="1">
-                              <list editable="bottom">
-                                  <field name="uom_id"/>
-                                  <field name="barcode"/>
-                                  <button name="action_print_barcode"
-                                    string="Print Barcode"
-                                    type="object"
-                                    class="btn-primary"/>
-                              </list>
-                          </field>
+                        <field name="uom_line_ids" nolable="1">
+                            <list editable="bottom">
+                                <field name="uom_id"/>
+                                <field name="barcode"/>
+                                <button name="action_print_barcode"
+                                        string="Print Barcode"
+                                        type="object"
+                                        class="btn-primary"/>
+                            </list>
+                        </field>
                     </group>
                 </xpath>
             </field>
         </record>
-
+        <record id="product_template_list_view_pricelist_flag" model="ir.ui.view">
+            <field name="name">product.template.list.pricelist.flag</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_tree_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//list" position="inside">
+                    <field name="is_in_pricelist" widget="boolean_toggle" optional="show"/>
+                </xpath>
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="brand_id" optional="show"/>
+                    <field name="color_id" optional="show"/>
+                    <field name="size_id" optional="show"/>
+                    <field name="discount_percent"/>
+                    <field name="discount_amount"/>
+                </xpath>
+            </field>
+        </record>
     </data>
 </odoo>

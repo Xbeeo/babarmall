@@ -15,6 +15,12 @@ class PurchaseOrderLine(models.Model):
         store=True,
         readonly=True
     )
+    margin_percentage = fields.Float(
+        string='Margin %',
+        related='product_id.margin_percentage',
+        store=True,
+        readonly=True
+    )
     sr_no = fields.Integer(
         string='Sr#',
         compute='_compute_sr_no',

@@ -18,6 +18,39 @@
                 </div>
 
             </xpath>
+            <xpath expr="//field[@name='product_tmpl_id']" position="before">
+                <field name="product_tmpl_ids"
+                       widget="many2many_tags"
+                       invisible="display_applied_on == '2_product_category'"
+                       placeholder="Select one or more products..."
+                       context="{'list_view_ref': 'xbo_abm_custom.product_template_list_pricelist_discount',
+                 'discount_pricelist_id': parent.id}"/>
+            </xpath>
+            <xpath expr="//field[@name='product_tmpl_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='percent_price']" position="attributes">
+                <attribute name="readonly">discount_amount != 0</attribute>
+            </xpath>
+            <xpath expr="//field[@name='discount_amount']" position="attributes">
+                <attribute name="readonly">percent_price != 0</attribute>
+            </xpath>
+
+        </field>
+    </record>
+    <record id="product_pricelist_form_view_discount_columns" model="ir.ui.view">
+        <field name="name">product.pricelist.form.discount.columns</field>
+        <field name="model">product.pricelist</field>
+        <field name="inherit_id" ref="product.product_pricelist_view"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='item_ids']/list" position="attributes">
+                <attribute name="editable">bottom</attribute>
+            </xpath>
+            <xpath expr="//field[@name='item_ids']/list/field[@name='min_quantity']" position="before">
+                <field name="percent_price" readonly="discount_amount != 0"/>
+                <field name="discount_amount" readonly="percent_price != 0"/>
+            </xpath>
 
         </field>
     </record>

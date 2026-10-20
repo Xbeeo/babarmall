@@ -14,7 +14,7 @@
 
     'website': 'https://xbeeo.com/',
 
-    "depends": ['base','sale_management','account','purchase','stock','contacts','hr'],
+    "depends": ['base', 'sale_management', 'account', 'purchase', 'stock', 'contacts', 'hr', 'hr_expense'],
 
     "data": [
         'security/ir.model.access.csv',
@@ -37,5 +37,10 @@
         'views/size_size_views.xml',
         'views/res_users_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'xbo_abm_custom/static/src/pricelist_item_list.js',
+        ],
+    },
 
 }

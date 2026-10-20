@@ -22,8 +22,9 @@ from . import product_pricelist_item
 from . import product_uom
 from . import stock_move_line
 from . import hr_expense
-
-
+from . import stock_move
+from . import product_pricelist
+from . import purchase_report
 
 
 

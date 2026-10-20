@@ -30,6 +30,7 @@
                     <field name="no_of_ctn" />
                     <field name="no_of_bags" />
                     <field name="party_type_id" />
+                    <field name="comment" />
                 </xpath>
                 <xpath expr="//field[@name='order_line']/list//field[@name='product_uom_id']" position="replace">
                 </xpath>
@@ -39,7 +40,11 @@
                 </xpath>
                 <xpath expr="//field[@name='order_line']/list//field[@name='product_uom_qty']" position="after">
                     <field name="product_uom_id"/>
-                    <field name="total_pcs"/>
+                    <field name="total_pcs" sum="Total"/>
+                </xpath>
+
+                <xpath expr="//field[@name='order_line']/list//field[@name='product_uom_qty']" position="before">
+                    <field name="qty_available"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="before">
                     <field name="custom_unit_price" />
@@ -48,7 +53,7 @@
                     <attribute name="string">PKT Price</attribute>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/list//field[@name='product_uom_id']" position="attributes">
-                    <attribute name="string">PCS</attribute>
+                    <attribute name="string">Packing</attribute>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/list" position="inside">
                     <field name="allowed_product_ids" column_invisible="1"/>

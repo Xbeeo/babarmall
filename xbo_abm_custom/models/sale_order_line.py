@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 
 class SaleOrderline(models.Model):
     _inherit = 'sale.order.line'
 
     discount_amount = fields.Float(string='Disc Amount')
     discount = fields.Float( string="Discount (%)", digits=(16, 6), default=0.0 )
+
+    qty_available = fields.Float(string='Qty Available', related='product_template_id.qty_available', store=True, readonly=True)
 
     allowed_product_ids = fields.Many2many(
         comodel_name='product.product',
@@ -26,10 +29,31 @@ class SaleOrderline(models.Model):
 
     custom_unit_price = fields.Float(string="Unit Price")
 
+    @api.constrains('product_uom_qty', 'product_uom_id', 'product_id')
+    def _check_total_pcs_available(self):
+        for line in self:
+            if line.product_template_id.name != 'Discount':
+                if line.total_pcs > line.qty_available:
+                    raise ValidationError(_(
+                        "You cannot order more quantity than available stock.\n\n"
+                        "Product: %s\n"
+                        "Required Pcs: %s\n"
+                        "Available Pcs: %s"
+                    ) % (
+                          line.product_id.display_name,
+                          line.total_pcs,
+                          line.qty_available,
+                      ))
+
+
     @api.onchange('product_id')
     def _onchange_product_id_custom(self):
         for line in self:
             if line.product_template_id:
+                product_uom = self.env["product.uom"].search([
+                    ("product_id", "=", line.product_id)
+                ], limit=1)
+
                 template = line.product_template_id
 
                 parts = [
@@ -41,6 +65,8 @@ class SaleOrderline(models.Model):
 
                 line.name = " - ".join(filter(None, parts))
                 line.custom_unit_price = line.product_id.lst_price
+                if product_uom:
+                    line.product_uom_id =  product_uom.uom_id.id,
 
     @api.depends('product_uom_qty','product_uom_id')
     def _compute_total_pcs(self):
@@ -151,3 +177,46 @@ class SaleOrderline(models.Model):
             else:
                 total = line.price_unit * line.product_uom_qty
                 line.discount_amount = (total * line.discount) / 100
+
+    @api.model_create_multi
+    def create(self, vals_list):
+
+        created_lines = self.env['sale.order.line']
+
+        for vals in vals_list:
+
+            # Barcode se create ho rahi hai
+            # to normal Odoo create hone dein
+            if self.env.context.get('barcode_scan'):
+                created_lines |= super(SaleOrderline, self).create(vals)
+                continue
+
+            product_id = vals.get('product_id')
+            order_id = vals.get('order_id')
+            uom_id = vals.get('product_uom_id')
+
+            # Manual creation
+            if product_id and order_id and uom_id:
+
+                existing_line = self.search([
+                    ('order_id', '=', order_id),
+                    ('product_id', '=', product_id),
+                ], limit=1)
+
+                if existing_line:
+                    qty = vals.get('product_uom_qty') or 1.0
+
+                    existing_line.write({
+                        'product_uom_qty':
+                            existing_line.product_uom_qty + qty
+                    })
+
+                    created_lines |= existing_line
+                    continue
+
+            # Normal new line
+            created_lines |= super(
+                SaleOrderline, self
+            ).create(vals)
+
+        return created_lines

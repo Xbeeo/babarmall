@@ -23,6 +23,8 @@ class SaleOrderInherit(models.Model):
     end_date_time = fields.Datetime(string="End Date Time",readonly=True)
     partner_phone = fields.Char(string="Customer Phone",related='partner_id.phone',store=True,readonly=True)
     customer_credit_limit = fields.Integer(string="Credit limit",related='partner_id.customer_credit_limit',store=True,readonly=True)
+    comment = fields.Html(string='Notes',related='partner_id.comment',store=True,readonly=True)
+
     party_type_id = fields.Many2one(
         comodel_name='party.type',
         string="Party Type",
@@ -41,6 +43,8 @@ class SaleOrderInherit(models.Model):
         compute="_compute_total_before_dic",
         store=True,
     )
+    print_count = fields.Integer(default=0, copy=False, readonly=True)
+
 
 
 
@@ -58,6 +62,10 @@ class SaleOrderInherit(models.Model):
             total = 0.0
             for line in move.order_line:
                 total += line.discount_amount
+
+                if line.product_template_id.name == 'Discount' and line.price_subtotal < 0:
+                    total += abs(line.price_subtotal)
+
             move.total_discount = total
 
 
@@ -142,3 +150,13 @@ class SaleOrderInherit(models.Model):
             order.end_date_time = fields.Datetime.now()
 
         return res
+
+    def action_add_from_catalog(self):
+        action = super().action_add_from_catalog()
+        list_view_id = self.env.ref('xbo_abm_custom.product_view_list_catalog').id
+        views = list(action['views'])
+        idx = next((i for i, v in enumerate(views) if v[1] == 'kanban'), 0) + 1
+        views.insert(idx, (list_view_id, 'list'))
+        action['views'] = views
+        action['view_mode'] = 'kanban,list,form'
+        return action

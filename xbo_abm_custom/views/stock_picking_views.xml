@@ -10,10 +10,10 @@
                 <xpath expr="//notebook/page[last()]" position="after">
                     <page name="custom_fields" invisible="picking_code != 'outgoing'">
                         <group>
-                            <group >
-                                    <field name="ref_by_id"/>
-                                    <field name="no_of_bags"/>
-                                    <field name="no_of_ctn"/>
+                            <group>
+                                <field name="ref_by_id"/>
+                                <field name="no_of_bags"/>
+                                <field name="no_of_ctn"/>
                             </group>
                             <field name="picking_code" invisible="1"/>
                         </group>
@@ -21,6 +21,14 @@
                 </xpath>
                 <xpath expr="//field[@name='move_ids']/list//field[@name='packaging_uom_qty']" position="attributes">
                     <attribute name="sum">Total</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='move_ids']/list//field[@name='product_uom_qty']" position="attributes">
+                    <attribute name="string">Bundle</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='move_ids']/list//field[@name='product_id']" position="after">
+                    <field name="qty_available"/>
                 </xpath>
                 <xpath expr="//button[@name='action_cancel']" position="after">
                     <button name="action_credit_notes" type="object" string="Credit Notes"/>
@@ -34,6 +42,12 @@
                     </button>
 
                 </xpath>
+                <xpath expr="//field[@name='move_ids']/list/field[@name='product_uom']" position="after">
+                    <field name="total_pcs" column_invisible="parent.picking_type_code != 'internal'"/>
+                </xpath>
+                <xpath expr="//field[@name='move_ids']/list/field[@name='product_uom']" position="attributes">
+                    <attribute name="string">Packing</attribute>x
+                </xpath>
             </field>
         </record>
 
@@ -46,6 +60,13 @@
                     <field name="vendor_id"/>
                 </xpath>
             </field>
+        </record>
+        <!-- 2. Use it only in the Internal Transfers action -->
+        <record id="action_picking_internal_form_custom" model="ir.actions.act_window.view">
+            <field name="sequence" eval="3"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_picking_form_inherit"/>
+            <field name="act_window_id" ref="stock.action_picking_tree_internal"/>
         </record>
 
 
