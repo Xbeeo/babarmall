@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_trialbalance_totals" inherit_id="accounting_pdf_reports.report_trialbalance">
+        <xpath expr="//table[hasclass('table-reports')]/tbody" position="inside">
+            <tr style="font-weight:bold; page-break-inside:avoid;">
+                <td colspan="2">Total</td>
+                <td class="text-end">
+                    <t t-esc="'{:,.2f}'.format(sum(a['debit'] for a in Accounts))"/>
+                </td>
+                <td class="text-end">
+                    <t t-esc="'{:,.2f}'.format(sum(a['credit'] for a in Accounts))"/>
+                </td>
+                <td class="text-end">
+                    <t t-esc="'{:,.2f}'.format(sum(a['balance'] for a in Accounts))"/>
+                </td>
+            </tr>
+        </xpath>
+    </template>
+</odoo>

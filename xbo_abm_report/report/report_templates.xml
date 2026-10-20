@@ -1,9 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <template id="custom_external_layout_standard_solo_header">
+        <div t-attf-class="header o_company_#{company.id}_layout">
+
+            <!-- Company Name + Logo: only on page 1 -->
+            <div id="first_page_only" class="row align-items-center">
+                <div class="col-8">
+                    <div style="line-height:1.2;">
+                        <strong t-esc="company.name" style="font-size:16px;"/>
+                        <br/>
+                        <span style="font-size:12px;">
+                            <t t-esc="company.street"/>
+                            <t t-if="company.street2">
+                                <t t-esc="company.street2"/>
+                            </t>
+                            <t t-if="company.city">.
+                                <t t-esc="company.city"/>
+                            </t>
+                            <t t-if="company.country_id">
+                                <t t-esc="company.country_id.name"/>
+                            </t>
+                            <br></br>
+                            <t t-if="company.phone">
+                                Ph:
+                                <t t-esc="company.phone"/>
+                            </t>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-4 text-end">
+                    <img t-if="company.logo"
+                         t-att-src="image_data_uri(company.logo)"
+                         style="width:80px; height:auto;"/>
+                </div>
+            </div>
+
+            <script type="text/javascript">
+                var search = window.location.search.substring(1);
+                var pairs = search.split('&amp;');
+                var page = null;
+                for (var i = 0; i &lt; pairs.length; i++) {
+                var kv = pairs[i].split('=');
+                if (kv[0] === 'page') {
+                page = parseInt(kv[1], 10);
+                }
+                }
+                if (page &amp;&amp; page !== 1) {
+                var el = document.getElementById('first_page_only');
+                if (el) {
+                el.style.display = 'none';
+                }
+                }
+            </script>
+
+            <hr style="margin:2px;"/>
+            <div class="row" style="font-size:10px;">
+                <div class="col-4 text-start">
+                    Page:
+                    <span class="page"/>
+                    of
+                    <span class="topage"/>
+                </div>
+                <div class="col-4 text-center"></div>
+                <div class="col-4 text-end">
+                    <t t-set="now"
+                       t-value="datetime.datetime.now()+datetime.timedelta(hours=5)"/>
+                    <t t-esc="now.strftime('%I:%M:%S %p')"/>
+                </div>
+            </div>
+
+            <!-- Repeats on every page: order/customer summary -->
+            <t t-if="o">
+                <t t-if="o.print_count > 0">
+                    <div style="text-align:right; font-size:10px; font-weight:bold;">DUPLICATE</div>
+                </t>
+                <div class="row" style="font-size: 10px;">
+                    <div class="col-4 text-start"></div>
+                    <div class="col-4 text-center">
+                        <t t-if="o.start_date_time">
+                            <t t-set="start_time" t-value="o.start_date_time + datetime.timedelta(hours=5)"/>
+                            <t t-esc="start_time.strftime('%I:%M:%S %p')"/>
+                        </t>
+                    </div>
+                    <div class="col-4 text-end">
+                        <t t-if="o.user_id">
+                            <strong>Operator:</strong>
+                            <t t-esc="o.user_id.name"/>
+                        </t>
+                    </div>
+                </div>
+
+                <div class="row" style="font-size: 15px;">
+                    <div class="col-9 text-start">
+                        <t t-esc="o.partner_id.sequence_customer"/>
+                        .
+                        <t t-esc="o.partner_id.name"/>
+                    </div>
+                    <div class="col-3 text-end">
+                        <t t-if="o.date_order">
+                            <t t-esc="o.date_order.strftime('%d-%b-%Y')"/>
+                        </t>
+                    </div>
+                </div>
+
+                <div class="row" style="font-size: 15px;">
+                    <div class="col-6 text-start"></div>
+                    <div class="col-3 text-end">
+                        <strong>
+                            <t t-esc="o.party_type_id.name"/>
+                        </strong>
+                    </div>
+                    <div class="col-3 text-end">
+                        <strong>
+                            <t t-esc="o.name"/>
+                        </strong>
+                    </div>
+                </div>
+            </t>
+        </div>
+
+        <t t-set="layout_background_url"
+           t-value="'data:image/png;base64,%s' % company.layout_background_image.decode('utf-8') if company.layout_background_image and company.layout_background == 'Custom' else
+        '/base/static/img/demo_logo_report.png' if company.layout_background == 'Demo logo' else ''"/>
+        <div t-attf-class="article o_report_layout_standard o_table_standard o_company_#{company.id}_layout o_snail_mail {{'o_report_layout_background' if company.layout_background != 'Blank' else ''}}"
+             t-attf-style="{{ 'background-image: url(%s);' % layout_background_url if layout_background_url else '' }}"
+             t-att-data-oe-model="o and o._name"
+             t-att-data-oe-id="o and o.id"
+             t-att-data-oe-lang="o and o.env.context.get('lang')">
+            <t t-call="web.address_layout"/>
+            <h2 t-out="layout_document_title"/>
+            <t t-out="0"/>
+        </div>
+    </template>
+
     <template id="custom_external_layout_standard">
         <div t-attf-class="header o_company_#{company.id}_layout">
             <div class="row align-items-center">
-            <!-- Company Name Left -->
+                <!-- Company Name Left -->
                 <div class="col-8">
                     <div style="line-height:1.2;">
                         <strong t-esc="company.name" style="font-size:16px;"/>
@@ -11,11 +144,18 @@
 
                         <span style="font-size:12px;">
                             <t t-esc="company.street"/>
-                            <t t-if="company.street2"> <t t-esc="company.street2"/></t>
-                            <t t-if="company.city">. <t t-esc="company.city"/></t>
-                            <t t-if="company.country_id"> <t t-esc="company.country_id.name"/></t>
+                            <t t-if="company.street2">
+                                <t t-esc="company.street2"/>
+                            </t>
+                            <t t-if="company.city">.
+                                <t t-esc="company.city"/>
+                            </t>
+                            <t t-if="company.country_id">
+                                <t t-esc="company.country_id.name"/>
+                            </t>
+                            <br></br>
                             <t t-if="company.phone">
-                                 Ph:
+                                Ph:
                                 <t t-esc="company.phone"/>
                             </t>
                         </span>
@@ -28,35 +168,27 @@
                          t-att-src="image_data_uri(company.logo)"
                          style="width:80px; height:auto;"/>
                 </div>
-
-
             </div>
             <hr style="margin:2px;"/>
             <div class="row" style="font-size:10px;">
-
                 <div class="col-4 text-start">
                     Page:
                     <span class="page"/>
                     of
                     <span class="topage"/>
                 </div>
-
-
                 <div class="col-4 text-center">
                 </div>
-
-
                 <div class="col-4 text-end">
                     <t t-set="now"
                        t-value="datetime.datetime.now()+datetime.timedelta(hours=5)"/>
                     <t t-esc="now.strftime('%I:%M:%S %p')"/>
                 </div>
-
             </div>
         </div>
         <t t-set="layout_background_url"
            t-value="'data:image/png;base64,%s' % company.layout_background_image.decode('utf-8') if company.layout_background_image and company.layout_background == 'Custom' else
-                '/base/static/img/demo_logo_report.png' if company.layout_background == 'Demo logo' else ''" />
+                '/base/static/img/demo_logo_report.png' if company.layout_background == 'Demo logo' else ''"/>
         <div t-attf-class="article o_report_layout_standard o_table_standard o_company_#{company.id}_layout o_snail_mail {{'o_report_layout_background' if company.layout_background != 'Blank' else ''}}"
              t-attf-style="{{ 'background-image: url(%s);' % layout_background_url if layout_background_url else '' }}"
              t-att-data-oe-model="o and o._name"
@@ -68,9 +200,8 @@
         </div>
     </template>
 
-
     <template id="custom_external_layout_standard_templ">
-        <t t-if="not o" t-set="o" t-value="doc"/>
+        <t t-if="not o and docs" t-set="o" t-value="docs[0]"/>
 
         <t t-if="not company">
             <!-- Multicompany -->
@@ -85,7 +216,30 @@
             </t>
         </t>
 
-        <t t-call="xbo_abm_report.custom_external_layout_standard"><t t-out="0"/></t>
+        <t t-call="xbo_abm_report.custom_external_layout_standard">
+            <t t-out="0"/>
+        </t>
 
     </template>
+
+    <template id="custom_sale_order_external_layout">
+        <t t-if="not o and docs" t-set="o" t-value="docs[0]"/>
+
+        <t t-if="not company">
+            <t t-if="company_id">
+                <t t-set="company" t-value="company_id"/>
+            </t>
+            <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+                <t t-set="company" t-value="o.company_id.sudo()"/>
+            </t>
+            <t t-else="else">
+                <t t-set="company" t-value="res_company"/>
+            </t>
+        </t>
+
+        <t t-call="xbo_abm_report.custom_external_layout_standard_solo_header">
+            <t t-out="0"/>
+        </t>
+    </template>
+
 </odoo>
