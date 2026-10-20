@@ -167,7 +167,7 @@
     </record>
     <!-- PDC Menu -->
 
-    <menuitem id="menu_pdc_payment" name="PDC payment" groups="account.group_account_invoice" parent="account.menu_finance" sequence="25" action="sh_pdc_payment_menu_action" />
+    <menuitem id="menu_pdc_payment" name="PDC payment" groups="account.group_account_invoice" parent="account.menu_finance" sequence="19" action="sh_pdc_payment_menu_action" />
 
     <!-- account.move (Journal Entry) -->
 

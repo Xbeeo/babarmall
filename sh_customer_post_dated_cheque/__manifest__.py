@@ -28,6 +28,7 @@
         "wizard/pdc_payment_wizard_views.xml",
         "wizard/pdc_multi_action.xml",
         "views/account_move_views.xml",
+        "views/res_partner_views.xml",
         'report/pdc_payment_report.xml',
     ],
 

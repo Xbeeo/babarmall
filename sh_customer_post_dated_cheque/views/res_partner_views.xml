@@ -1,0 +1,15 @@
+<odoo>
+    <record id="view_partner_form_payment_button" model="ir.ui.view">
+        <field name="name">res.partner.form.payment.button</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button name="action_view_pdc_payments" type="object"
+                        class="oe_stat_button" icon="fa-pencil-square-o">
+                    <field name="pdc_count" widget="statinfo" string="PDC Payment"/>
+                </button>
+            </div>
+        </field>
+    </record>
+</odoo>
