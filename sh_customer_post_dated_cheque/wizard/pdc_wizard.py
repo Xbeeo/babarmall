@@ -286,8 +286,11 @@ class PDC_wizard(models.Model):
 
         if self.pdc_type == 'customer':
 
-            move_line_vals_debit = self.get_debit_move_line(pdc_account , partner=None)
-            move_line_vals_credit = self.get_credit_move_line(partner_account , partner=self.partner_id.id)
+            self.write({'state': 'registered'})
+            return
+
+            # move_line_vals_debit = self.get_debit_move_line(pdc_account , partner=None)
+            # move_line_vals_credit = self.get_credit_move_line(partner_account , partner=self.partner_id.id)
 
 
         elif self.pdc_type == 'vendor':
@@ -392,22 +395,36 @@ class PDC_wizard(models.Model):
         }
 
     def action_deposited(self):
-        # move = self.env['account.move']
-        #
-        # self.check_payment_amount()  # amount must be positive
-        # pdc_account = self.check_pdc_account()
-        # partner_account = self.get_partner_account()
-        #
-        # # Create Journal Item
-        # move_line_vals_debit = {}
-        # move_line_vals_credit = {}
-        # if self.payment_type == 'receive_money':
-        #     move_line_vals_debit = self.get_debit_move_line(pdc_account)
-        #     move_line_vals_credit = self.get_credit_move_line(partner_account)
-        #
-        # # create move and post it
-        # move_vals = self.get_move_vals(
-        #     move_line_vals_debit, move_line_vals_credit)
+        if self.pdc_type == 'customer':
+            self.check_payment_amount()
+
+            pdc_account = self.check_pdc_account()
+            partner_account = self.get_partner_account()
+
+            move_line_vals_debit = self.get_debit_move_line(
+                pdc_account, partner=None
+            )
+
+            move_line_vals_credit = self.get_credit_move_line(
+                partner_account, partner=self.partner_id.id
+            )
+
+            move_vals = self.get_move_vals(
+                move_line_vals_debit,
+                move_line_vals_credit
+            )
+
+            move_id = self.env['account.move'].create(move_vals)
+            move_id.action_post()
+
+            self.write({
+                'deposited_debit': move_id.line_ids.filtered(
+                    lambda x: x.debit > 0
+                ),
+                'deposited_credit': move_id.line_ids.filtered(
+                    lambda x: x.credit > 0
+                ),
+            })
 
         self.write({
             'state': 'deposited',
