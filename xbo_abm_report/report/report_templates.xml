@@ -116,6 +116,48 @@
                         </strong>
                     </div>
                 </div>
+
+                <div class="row" style="font-size: 11px;">
+                    <div class="col-6" style="text-align: left;">
+                        <t t-if="o.ref_by">
+                            <strong>Ref By:</strong>
+                            <t t-esc="o.ref_by"/>
+                        </t>
+                    </div>
+                    <div class="col-6" style="text-align: right;">
+                    </div>
+                </div>
+
+                <!--
+                    NOTE: The following blocks used to appear here (start/end time,
+                    customer name + date_order, party_type + order name). They now
+                    live in the repeating page header inside
+                    custom_external_layout_standard_solo_header, so they show on
+                    every page instead of just once at the top of the document.
+                -->
+
+                <div class="row" style="font-size: 15px;">
+                    <div class="col-6" style="text-align: left;">
+                        <t t-esc="o.partner_id.city_id.name"/>
+                    </div>
+                    <div class="col-3" style="text-align: right;">
+                    </div>
+                    <div class="col-3" style="text-align: right;">
+                    </div>
+                </div>
+                <div class="row" style="font-size: 15px;">
+                    <div class="col-6" style="text-align: left;">
+                        <t t-esc="o.partner_id.phone"/>
+                    </div>
+                    <div class="col-6" style="text-align: right;">
+                        <t t-if="o.user_id.floor_id">
+                            <strong>
+                                <t t-esc="o.user_id.floor_id.name"/>
+                            </strong>
+                        </t>
+                    </div>
+                </div>
+
             </t>
         </div>
 
@@ -242,4 +284,128 @@
         </t>
     </template>
 
+    <template id="custom_credit_note_external_layout">
+
+        <t t-if="not o and docs" t-set="o" t-value="docs[0]"/>
+        <t t-if="not company">
+            <t t-if="o and o.company_id">
+                <t t-set="company" t-value="o.company_id.sudo()"/>
+            </t>
+            <t t-else="">
+                <t t-set="company" t-value="res_company"/>
+            </t>
+        </t>
+
+        <div t-attf-class="header o_company_#{company.id}_layout">
+
+            <div class="row align-items-center">
+                <div class="col-8">
+                    <div style="line-height:1.2;">
+                        <strong t-esc="company.name" style="font-size:16px;"/>
+                        <br/>
+                        <span style="font-size:12px;">
+                            <t t-esc="company.street"/>
+                            <t t-if="company.street2">
+                                <t t-esc="company.street2"/>
+                            </t>
+                            <t t-if="company.city">.
+                                <t t-esc="company.city"/>
+                            </t>
+                            <t t-if="company.country_id">
+                                <t t-esc="company.country_id.name"/>
+                            </t>
+                            <br/>
+                            <t t-if="company.phone">Ph:
+                                <t t-esc="company.phone"/>
+                            </t>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-4 text-end">
+                    <img t-if="company.logo"
+                         t-att-src="image_data_uri(company.logo)"
+                         style="width:80px; height:auto;"/>
+                </div>
+            </div>
+
+            <hr style="margin:2px;"/>
+
+            <div class="row" style="font-size:10px;">
+                <div class="col-4 text-start">
+                    Page:
+                    <span class="page"/>
+                    of
+                    <span class="topage"/>
+                </div>
+                <div class="col-4 text-center">
+                    <t t-if="o.start_date_time">
+                        <t t-set="start_time" t-value="o.start_date_time + datetime.timedelta(hours=5)"/>
+                        <t t-esc="start_time.strftime('%I:%M:%S %p')"/>
+                    </t>
+                </div>
+                <div class="col-4 text-end">
+                    <t t-if="o.sale_person_id">
+                        <strong>Operator:</strong>
+                        <t t-esc="o.sale_person_id.name"/>
+                    </t>
+                </div>
+            </div>
+
+            <div class="row" style="font-size:15px;">
+                <div class="col-9 text-start">
+                    <t t-esc="o.partner_id.sequence_customer"/>
+                    .
+                    <t t-esc="o.partner_id.name"/>
+                </div>
+                <div class="col-3 text-end">
+                    <t t-if="o.invoice_date">
+                        <t t-esc="o.invoice_date.strftime('%d-%b-%Y')"/>
+                    </t>
+                </div>
+            </div>
+
+            <div class="row" style="font-size:15px;">
+                <div class="col-5 text-start"></div>
+                <div class="col-3 text-end">
+                    <strong>
+                        <t t-esc="o.party_type_id.name"/>
+                    </strong>
+                </div>
+                <div class="col-4 text-end" style="white-space:nowrap;">
+                    <strong>
+                        <t t-esc="o.name"/>
+                    </strong>
+                </div>
+            </div>
+
+            <div class="row" style="font-size:11px;">
+                <div class="col-6 text-start">
+                    <t t-if="o.ref_by">
+                        <strong>Ref By:</strong>
+                        <t t-esc="o.ref_by"/>
+                    </t>
+                </div>
+                <div class="col-6"></div>
+            </div>
+
+            <div class="row" style="font-size:15px;">
+                <div class="col-6 text-start">
+                    <t t-esc="o.partner_id.city_id.name"/>
+                </div>
+            </div>
+            <div class="row" style="font-size:15px;">
+                <div class="col-6 text-start">
+                    <t t-esc="o.partner_id.phone"/>
+                </div>
+            </div>
+        </div>
+
+        <div t-attf-class="article o_report_layout_standard o_table_standard o_company_#{company.id}_layout"
+             t-att-data-oe-model="o and o._name"
+             t-att-data-oe-id="o and o.id"
+             t-att-data-oe-lang="o and o.env.context.get('lang')">
+            <t t-out="0"/>
+        </div>
+
+    </template>
 </odoo>

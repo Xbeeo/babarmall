@@ -15,44 +15,6 @@
                     </style>
 
                     <!-- Ref By / Operator: kept here since it's not part of the repeating header -->
-                    <div class="row" style="font-size: 11px;">
-                        <div class="col-6" style="text-align: left;">
-                            <t t-if="o.ref_by">
-                                <strong>Ref By:</strong>
-                                <t t-esc="o.ref_by"/>
-                            </t>
-                        </div>
-                        <div class="col-6" style="text-align: right;">
-                        </div>
-                    </div>
-
-                    <!--
-                        NOTE: The following blocks used to appear here (start/end time,
-                        customer name + date_order, party_type + order name). They now
-                        live in the repeating page header inside
-                        custom_external_layout_standard_solo_header, so they show on
-                        every page instead of just once at the top of the document.
-                    -->
-
-                    <div class="row" style="font-size: 15px;">
-                        <div class="col-6" style="text-align: left;">
-                            <t t-esc="o.partner_id.city_id.name"/>
-                        </div>
-                        <div class="col-3" style="text-align: right;">
-                        </div>
-                        <div class="col-3" style="text-align: right;">
-                        </div>
-                    </div>
-                    <div class="row" style="font-size: 15px;">
-                        <div class="col-6" style="text-align: left;">
-                            <t t-esc="o.partner_id.phone"/>
-                        </div>
-                        <div class="col-6" style="text-align: right;">
-                            <t t-if="o.user_id.floor_id">
-                                <strong><t t-esc="o.user_id.floor_id.name"/></strong>
-                            </t>
-                        </div>
-                    </div>
 
                     <table class="custom-table" style="font-size: 11px;">
                         <thead>
@@ -80,7 +42,7 @@
                                         </td>
                                         <td class="text-start">
                                             <t t-esc="line.product_id.display_name"/>
-                                            <t t-esc="line.name"/>
+<!--                                            <t t-esc="line.name"/>-->
                                         </td>
                                         <td class="text-center">
                                             <t t-esc="int(line.product_uom_qty)*int(line.product_uom_id.relative_factor)"/>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="custom_credit_note_report_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="xbo_abm_report.custom_credit_note_external_layout">
+
+                    <style>
+                        .custom-table, .custom-table td,
+                        .custom-table th {
+                        border: 1px solid black;
+                        }
+                        .custom-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        }
+                    </style>
+
+                    <table class="custom-table" style="font-size:11px;">
+                        <thead>
+                            <tr style="background-color:#c2d6d6;">
+                                <th style="font-weight: bold;" class="text-center">Sr.</th>
+                                <th style="font-weight: bold;" class="text-center">Item Code</th>
+                                <th style="font-weight: bold;" class="text-center">Description</th>
+                                <th style="font-weight: bold;" class="text-center">Qty</th>
+                                <th style="font-weight: bold;" class="text-center">Rate</th>
+                                <th style="font-weight: bold;" class="text-center">Value</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <t t-set="sr_no" t-value="0"/>
+                            <t t-set="total_qty" t-value="0"/>
+
+                            <t t-foreach="o.invoice_line_ids" t-as="line">
+                                <t t-if="line.display_type == 'product' and line.product_id">
+                                    <t t-set="sr_no" t-value="sr_no + 1"/>
+                                    <t t-set="total_qty" t-value="total_qty + int(line.quantity)"/>
+                                    <tr>
+                                        <td class="text-center">
+                                            <t t-esc="sr_no"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <t t-esc="line.product_id.default_code or ''"/>
+                                        </td>
+                                        <td class="text-start">
+                                            <t t-esc="line.product_id.display_name"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <t t-esc="int(line.quantity)"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <t t-esc="'{:,.0f}'.format(line.price_unit)"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <t t-esc="'{:,.0f}'.format(abs(line.price_subtotal))"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <div style="page-break-inside: avoid; margin-top:20px;">
+
+                        <div class="row" style="font-size: 15px;">
+                            <div class="col-2" style="text-align: left;"></div>
+                            <div class="col-4" style="text-align: center;">
+                                <strong>Net Quantity:</strong>
+                                <t t-esc="int(total_qty)"/>
+                            </div>
+                            <div class="col-6" style="text-align: right;">
+                                Gross Amount:
+                                <strong>
+                                    <t t-esc="'{:,.0f}'.format(abs(o.total_before_dis))"/>
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="row" style="font-size: 15px;">
+                            <div class="col-8" style="text-align: left;"></div>
+                            <div class="col-4" style="text-align: right;">
+                                <t t-if="o.total_discount">
+                                    Discount:
+                                    <strong>
+                                        <t t-esc="'{:,.0f}'.format(abs(o.total_discount))"/>
+                                    </strong>
+                                </t>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin-top:30px; text-align:center; font-size: 12px;">
+                            <div class="col-2">
+                                <t t-esc="o.packer_id.name or ''"/>
+                                <div style="border-top:1px solid #000; margin-top:5px; padding-top:5px;">
+                                    <strong>Packer</strong>
+                                </div>
+                            </div>
+                            <div class="col-1"></div>
+                            <div class="col-2">
+                                <t t-esc="o.checker_id.name or ''"/>
+                                <div style="border-top:1px solid #000; margin-top:5px; padding-top:5px;">
+                                    <strong>Checker</strong>
+                                </div>
+                            </div>
+                            <div class="col-1"></div>
+                            <div class="col-2">
+                                <t t-esc="o.salesmen_id.name or ''"/>
+                                <div style="border-top:1px solid #000; margin-top:5px; padding-top:5px;">
+                                    <strong>Salesman</strong>
+                                </div>
+                            </div>
+                            <div class="col-4"></div>
+                        </div>
+
+                        <strong>
+                            <hr/>
+                        </strong>
+
+                        <div class="row" style="font-size: 20px;">
+                            <div class="col-6" style="text-align: left;">
+                                <strong>
+                                    <t t-if="o.no_of_ctn > 0">
+                                        <t t-esc="o.no_of_ctn"/>
+                                        CTN
+                                    </t>
+                                    <t t-if="o.no_of_bags > 0">
+                                        <t t-esc="o.no_of_bags"/>
+                                        BAG
+                                    </t>
+                                </strong>
+                            </div>
+                            <div class="col-6" style="text-align: right;">
+                                <strong>
+                                    Rs.
+                                    <t t-esc="'{:,.0f}'.format(abs(o.amount_total))"/>
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div style="page-break-inside: avoid; margin-top: 15px;">
+                            <t t-if="o.comment">
+                                <div style="font-size: 13px;">
+                                    <span t-out="o.comment"/>
+                                </div>
+                            </t>
+                        </div>
+
+                    </div>
+
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>
