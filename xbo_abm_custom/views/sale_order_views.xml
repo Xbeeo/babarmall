@@ -25,12 +25,12 @@
                 </xpath>
 
                 <xpath expr="//field[@name='partner_shipping_id']" position="after">
-                    <field name="partner_phone" />
+                    <field name="partner_phone"/>
                     <field name="ref_by"/>
-                    <field name="no_of_ctn" />
-                    <field name="no_of_bags" />
-                    <field name="party_type_id" />
-                    <field name="comment" />
+                    <field name="no_of_ctn"/>
+                    <field name="no_of_bags"/>
+                    <field name="party_type_id"/>
+                    <field name="comment"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/list//field[@name='product_uom_id']" position="replace">
                 </xpath>
@@ -47,7 +47,7 @@
                     <field name="qty_available"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="before">
-                    <field name="custom_unit_price" />
+                    <field name="custom_unit_price"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="attributes">
                     <attribute name="string">PKT Price</attribute>
@@ -58,7 +58,8 @@
                 <xpath expr="//field[@name='order_line']/list" position="inside">
                     <field name="allowed_product_ids" column_invisible="1"/>
                 </xpath>
-                <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="attributes">
+                <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']"
+                       position="attributes">
                     <attribute name="domain">[('product_variant_ids', 'in', allowed_product_ids)]</attribute>
                 </xpath>
 
@@ -90,6 +91,17 @@
                                options="{'currency_field': 'currency_id'}"
                                readonly="1"/>
                     </group>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="sale_order_search_inherit" model="ir.ui.view">
+            <field name="name">sale.order.search.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <field name="sequence_customer"/>
                 </xpath>
             </field>
         </record>

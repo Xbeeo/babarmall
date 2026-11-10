@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from odoo import api, fields, models, _
-from odoo.exceptions import UserError
 from odoo.exceptions import ValidationError
 
 
@@ -16,25 +15,10 @@ class ProductPricelistItem(models.Model):
         store=False,
         help="Select multiple products; one rule will be created per product.")
 
-    @api.constrains('product_tmpl_id', 'pricelist_id')
-    def _check_duplicate_products(self):
-        for pricelist in self.pricelist_id:
-            groups = self.env['product.pricelist.item']._read_group(
-                [('pricelist_id', '=', pricelist.id), ('product_tmpl_id', '!=', False)],
-                ['product_tmpl_id'], ['__count'],
-            )
-            dups = [t for t, c in groups if c > 1]
-            if dups:
-                names = ', '.join(t.display_name for t in dups)
-                raise ValidationError(
-                    _("These products exist more than once in this pricelist: %s", names)
-                )
-
     @api.onchange('product_tmpl_ids')
     def _onchange_product_tmpl_ids(self):
         if self.product_tmpl_ids:
             self.product_tmpl_id = self.product_tmpl_ids[:1]
-
 
     @api.onchange('percent_price')
     def _onchange_percent_price_discount(self):
@@ -51,11 +35,37 @@ class ProductPricelistItem(models.Model):
         for values in vals_list:
             values.pop('product_tmpl_ids', None)  # defensive cleanup for non-UI create calls
             self._sync_discount_fields(values)
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        records._replace_previous_lines()
+        return records
 
     def write(self, vals):
         self._sync_discount_fields(vals)
-        return super().write(vals)
+        res = super().write(vals)
+        if {'product_tmpl_id', 'pricelist_id', 'percent_price',
+                'discount_amount', 'fixed_price'} & set(vals):
+            self._replace_previous_lines()
+        return res
+
+    def _replace_previous_lines(self):
+        for rec in self:
+            if not rec.pricelist_id or not rec.product_tmpl_id:
+                continue
+            older = self.search([
+                ('pricelist_id', '=', rec.pricelist_id.id),
+                ('product_tmpl_id', '=', rec.product_tmpl_id.id),
+                ('id', '<', rec.id),
+            ])
+            for old in older:
+                for fname in ('percent_price', 'discount_amount', 'fixed_price'):
+                    if rec[fname] and rec[fname] == old[fname]:
+                        raise ValidationError(_(
+                            "Product %(product)s already has a line with the same %(field)s (%(value)s).",
+                            product=rec.product_tmpl_id.display_name,
+                            field=rec._fields[fname].string,
+                            value=rec[fname],
+                        ))
+            older.unlink()
 
     @api.model
     def _sync_discount_fields(self, vals):

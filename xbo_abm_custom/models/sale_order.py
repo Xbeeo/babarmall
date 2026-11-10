@@ -24,6 +24,11 @@ class SaleOrderInherit(models.Model):
     partner_phone = fields.Char(string="Customer Phone",related='partner_id.phone',store=True,readonly=True)
     customer_credit_limit = fields.Integer(string="Credit limit",related='partner_id.customer_credit_limit',store=True,readonly=True)
     comment = fields.Html(string='Notes',related='partner_id.comment',store=True,readonly=True)
+    sequence_customer = fields.Char(
+        related='partner_id.sequence_customer',
+        string='Customer Code',
+        store=True,
+    )
 
     party_type_id = fields.Many2one(
         comodel_name='party.type',
