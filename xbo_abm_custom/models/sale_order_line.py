@@ -3,13 +3,15 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
+
 class SaleOrderline(models.Model):
     _inherit = 'sale.order.line'
 
     discount_amount = fields.Float(string='Disc Amount')
-    discount = fields.Float( string="Discount (%)", digits=(16, 6), default=0.0 )
+    discount = fields.Float(string="Discount (%)", digits=(16, 6), default=0.0)
 
-    qty_available = fields.Float(string='Qty Available', related='product_template_id.qty_available', store=True, readonly=True)
+    qty_available = fields.Float(string='Qty Available', related='product_template_id.qty_available', store=True,
+                                 readonly=True)
 
     allowed_product_ids = fields.Many2many(
         comodel_name='product.product',
@@ -40,11 +42,10 @@ class SaleOrderline(models.Model):
                         "Required Pcs: %s\n"
                         "Available Pcs: %s"
                     ) % (
-                          line.product_id.display_name,
-                          line.total_pcs,
-                          line.qty_available,
-                      ))
-
+                                              line.product_id.display_name,
+                                              line.total_pcs,
+                                              line.qty_available,
+                                          ))
 
     @api.onchange('product_id')
     def _onchange_product_id_custom(self):
@@ -66,16 +67,15 @@ class SaleOrderline(models.Model):
                 line.name = " - ".join(filter(None, parts))
                 line.custom_unit_price = line.product_id.lst_price
                 if product_uom:
-                    line.product_uom_id =  product_uom.uom_id.id,
+                    line.product_uom_id = product_uom.uom_id.id,
 
-    @api.depends('product_uom_qty','product_uom_id')
+    @api.depends('product_uom_qty', 'product_uom_id')
     def _compute_total_pcs(self):
         for line in self:
-            if line.product_uom_qty  and line.product_uom_id:
+            if line.product_uom_qty and line.product_uom_id:
                 line.total_pcs = line.product_uom_qty * line.product_uom_id.relative_factor
             else:
                 line.total_pcs = 0
-
 
     @api.depends('order_id.order_line')
     def _compute_sr_no(self):
@@ -157,7 +157,7 @@ class SaleOrderline(models.Model):
 
         return res
 
-    @api.depends('product_template_id', 'product_uom_qty', 'product_uom_id','pricelist_item_id','price_unit')
+    @api.depends('product_template_id', 'product_uom_qty', 'product_uom_id', 'pricelist_item_id', 'price_unit')
     def _compute_discount(self):
         super()._compute_discount()
 
@@ -178,45 +178,96 @@ class SaleOrderline(models.Model):
                 total = line.price_unit * line.product_uom_qty
                 line.discount_amount = (total * line.discount) / 100
 
+    # @api.model_create_multi
+    # def create(self, vals_list):
+    #
+    #     created_lines = self.env['sale.order.line']
+    #
+    #     for vals in vals_list:
+    #
+    #         # Barcode se create ho rahi hai
+    #         # to normal Odoo create hone dein
+    #         if self.env.context.get('barcode_scan'):
+    #             created_lines |= super(SaleOrderline, self).create(vals)
+    #             continue
+    #
+    #         product_id = vals.get('product_id')
+    #         order_id = vals.get('order_id')
+    #         uom_id = vals.get('product_uom_id')
+    #
+    #         # Manual creation
+    #         if product_id and order_id and uom_id:
+    #
+    #             existing_line = self.search([
+    #                 ('order_id', '=', order_id),
+    #                 ('product_id', '=', product_id),
+    #             ], limit=1)
+    #
+    #             if existing_line:
+    #                 qty = vals.get('product_uom_qty') or 1.0
+    #
+    #                 existing_line.write({
+    #                     'product_uom_qty':
+    #                         existing_line.product_uom_qty + qty
+    #                 })
+    #
+    #                 created_lines |= existing_line
+    #                 continue
+    #
+    #         # Normal new line
+    #         created_lines |= super(
+    #             SaleOrderline, self
+    #         ).create(vals)
+    #
+    #     for l in created_lines.filtered(lambda l: not l.custom_unit_price and l.product_id):
+    #         l.custom_unit_price = l.product_id.lst_price
+    #     return created_lines
+
     @api.model_create_multi
     def create(self, vals_list):
 
         created_lines = self.env['sale.order.line']
+        next_sequence = {}
 
         for vals in vals_list:
 
-            # Barcode se create ho rahi hai
-            # to normal Odoo create hone dein
-            if self.env.context.get('barcode_scan'):
-                created_lines |= super(SaleOrderline, self).create(vals)
-                continue
-
-            product_id = vals.get('product_id')
             order_id = vals.get('order_id')
-            uom_id = vals.get('product_uom_id')
+            is_barcode = self.env.context.get('barcode_scan')
 
-            # Manual creation
-            if product_id and order_id and uom_id:
+            # Manual creation: same product ho to purani line ki qty badhao
+            if not is_barcode:
+                product_id = vals.get('product_id')
+                uom_id = vals.get('product_uom_id')
 
-                existing_line = self.search([
-                    ('order_id', '=', order_id),
-                    ('product_id', '=', product_id),
-                ], limit=1)
+                if product_id and order_id and uom_id:
+                    existing_line = self.search([
+                        ('order_id', '=', order_id),
+                        ('product_id', '=', product_id),
+                    ], limit=1)
 
-                if existing_line:
-                    qty = vals.get('product_uom_qty') or 1.0
+                    if existing_line:
+                        qty = vals.get('product_uom_qty') or 1.0
+                        existing_line.write({
+                            'product_uom_qty': existing_line.product_uom_qty + qty
+                        })
+                        created_lines |= existing_line
+                        continue
 
-                    existing_line.write({
-                        'product_uom_qty':
-                            existing_line.product_uom_qty + qty
-                    })
+            # Nayi line ko sab se last sequence do
+            if order_id:
+                if order_id not in next_sequence:
+                    last_line = self.search(
+                        [('order_id', '=', order_id)],
+                        order='sequence desc',
+                        limit=1,
+                    )
+                    next_sequence[order_id] = last_line.sequence or 0
 
-                    created_lines |= existing_line
-                    continue
+                next_sequence[order_id] += 1
+                vals['sequence'] = next_sequence[order_id]
 
-            # Normal new line
-            created_lines |= super(
-                SaleOrderline, self
-            ).create(vals)
+            created_lines |= super(SaleOrderline, self).create(vals)
 
+        for l in created_lines.filtered(lambda l: not l.custom_unit_price and l.product_id):
+            l.custom_unit_price = l.product_id.lst_price
         return created_lines

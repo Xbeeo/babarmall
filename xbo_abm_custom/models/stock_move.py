@@ -9,9 +9,22 @@ class StockMoveInherit(models.Model):
 
     qty_available = fields.Float(string='Qty Available', related='product_id.qty_available', store=True, readonly=True)
     total_pcs = fields.Float(string='Total Pcs', compute='_compute_total_pcs')
+    price_pkt = fields.Float(string='PKT Price', compute='_compute_pkt_price', store=True, readonly=True)
     last_order_date = fields.Datetime(string="Last Date", compute='_compute_last_order')
     last_order_rate = fields.Float(string="Last Rate", compute='_compute_last_order')
     last_order_ref = fields.Char(string="Last PO/SO", compute='_compute_last_order')
+
+    @api.depends('product_id', 'picking_id.picking_type_code')
+    def _compute_pkt_price(self):
+        for move in self:
+            code = move.picking_id.picking_type_code
+            if code == 'outgoing':
+                move.price_pkt = move.product_id.list_price
+            elif code == 'incoming':
+                move.price_pkt = move.product_id.standard_price
+            else:
+                move.price_pkt = 0.0
+
 
     @api.depends('product_id', 'picking_id.partner_id', 'picking_id.picking_type_code')
     def _compute_last_order(self):

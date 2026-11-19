@@ -36,6 +36,9 @@
         'views/product_pricelist_item_views.xml',
         'views/size_size_views.xml',
         'views/res_users_views.xml',
+        'views/bad_debt_views.xml',
+        'views/uom_line_views.xml',
+
     ],
     'assets': {
         'web.assets_backend': [

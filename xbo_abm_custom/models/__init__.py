@@ -25,7 +25,7 @@ from . import hr_expense
 from . import stock_move
 from . import product_pricelist
 from . import purchase_report
-
+from . import bad_debt
 
 
 

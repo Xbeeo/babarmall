@@ -7,3 +7,5 @@ access_color_color,color.color,model_color_color,base.group_user,1,1,1,1
 access_size_size,size.size,model_size_size,base.group_user,1,1,1,1
 access_seasons_seasons,seasons.seasons,model_seasons_seasons,base.group_user,1,1,1,1
 access_product_template_uom_line,product.template.uom.line,model_product_template_uom_line,base.group_user,1,1,1,1
+access_bad_debt_user,bad.debt.user,model_bad_debt,account.group_account_user,1,1,1,1
+

@@ -240,6 +240,14 @@ class ProductTemplateUomLine(models.Model):
         string='Barcode'
     )
 
+    print_qty = fields.Integer(
+        string="Print Qty",
+        default=0,
+        help="0 ho to wizard wali qty use hogi"
+    )
+
+
+
     @api.model_create_multi
     def create(self, vals_list):
         lines = super().create(vals_list)

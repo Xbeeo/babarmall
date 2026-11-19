@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- LIST VIEW -->
+    <record id="view_product_template_uom_line_list" model="ir.ui.view">
+        <field name="name">product.template.uom.line.list</field>
+        <field name="model">product.template.uom.line</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" create="0" delete="0">
+                
+                <field name="product_tmpl_id" readonly="1"/>
+                <field name="uom_id" readonly="1"/>
+                <field name="barcode" readonly="1"/>
+                <field name="print_qty"/>
+                <field name="product_uom_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+
+
+    <!-- ACTION -->
+    <record id="action_product_template_uom_line" model="ir.actions.act_window">
+        <field name="name">Barcode Print</field>
+        <field name="res_model">product.template.uom.line</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <!-- MENU -->
+    <menuitem id="menu_product_template_uom_line"
+              name="Barcode Print"
+              parent="stock.menu_stock_root"
+              action="action_product_template_uom_line"
+              sequence="90"/>
+
+</odoo>

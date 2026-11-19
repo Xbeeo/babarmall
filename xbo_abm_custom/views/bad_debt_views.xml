@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_bad_debt_list" model="ir.ui.view">
+        <field name="name">bad.debt.list</field>
+        <field name="model">bad.debt</field>
+        <field name="arch" type="xml">
+            <list js_class="bad_debt_list">
+                <field name="date"/>
+                <field name="partner_id"/>
+                <field name="amount"/>
+                <field name="partner_current_balance"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_bad_debt_form" model="ir.ui.view">
+        <field name="name">bad.debt.form</field>
+        <field name="model">bad.debt</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="date"/>
+                            <field name="partner_id"/>
+                            <field name="amount"/>
+                        </group>
+                        <group>
+                            <field name="partner_current_balance"/>
+                            <field name="description"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_bad_debt" model="ir.actions.act_window">
+        <field name="name">Bad Debt</field>
+        <field name="res_model">bad.debt</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_bad_debt"
+              name="Bad Debt"
+              parent="account.menu_finance"
+              action="action_bad_debt"
+              sequence="20"/>
+</odoo>

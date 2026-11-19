@@ -95,3 +95,10 @@ class PurchaseOrderLine(models.Model):
             'discount_amount': self.discount_amount or 0.0,
         })
         return res
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        lines = super().create(vals_list)
+        for l in lines.filtered(lambda l: not l.custom_unit_price and l.product_id):
+            l.custom_unit_price = l.product_id.standard_price
+        return lines
