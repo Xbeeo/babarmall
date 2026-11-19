@@ -1,0 +1,139 @@
+<odoo>
+    <record id="paperformat_bad_debt" model="report.paperformat">
+        <field name="name">Bad Debt Report A4</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">5</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_spacing">0</field>
+        <field name="disable_shrinking" eval="True"/>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_report_bad_debt" model="ir.actions.report">
+        <field name="name">Bad Debt Report</field>
+        <field name="model">bad.debt.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">xbo_abm_report.report_bad_debt</field>
+        <field name="report_file">xbo_abm_report.report_bad_debt</field>
+        <field name="paperformat_id" ref="paperformat_bad_debt"/>
+        <field name="print_report_name">'Bad Debt Report'</field>
+    </record>
+
+    <template id="report_bad_debt">
+        <t t-call="web.html_container">
+            <t t-call="web.basic_layout">
+                <t t-set="o" t-value="docs[0]"/>
+                <style>
+                    .bd-table, .bd-table td, .bd-table th { border: 1px solid black; }
+                    .bd-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+                    .bd-table td, .bd-table th { padding: 2px 5px; }
+                </style>
+
+                <!-- Company header: in the body, so it appears on page 1 only -->
+                <div class="row align-items-center">
+                    <div class="col-8">
+                        <div style="line-height:1.2;">
+                            <strong t-esc="company.name" style="font-size:16px;"/>
+                            <br/>
+                            <span style="font-size:12px;">
+                                <t t-esc="company.street"/>
+                                <t t-if="company.street2">
+                                    <t t-esc="company.street2"/>
+                                </t>
+                                <t t-if="company.city">.
+                                    <t t-esc="company.city"/>
+                                </t>
+                                <t t-if="company.country_id">
+                                    <t t-esc="company.country_id.name"/>
+                                </t>
+                                <br/>
+                                <t t-if="company.phone">Ph:
+                                    <t t-esc="company.phone"/>
+                                </t>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
+                             style="width:80px; height:auto;"/>
+                    </div>
+                </div>
+                <hr style="margin:4px 0;"/>
+
+                <h4 class="text-center">
+                    <strong>Bad Debt Report</strong>
+                </h4>
+                <div class="row" style="font-size:12px;">
+                    <div class="col-6">
+                        <strong>From:</strong>
+                        <t t-esc="o.date_from.strftime('%d-%b-%Y')"/>
+                        <br/>
+                        <strong>To:</strong>
+                        <t t-esc="o.date_to.strftime('%d-%b-%Y')"/>
+                    </div>
+                    <div class="col-6 text-end">
+                        <strong>Printed:</strong>
+                        <t t-esc="printed_on.strftime('%d-%b-%Y %I:%M:%S %p')"/>
+                        <br/>
+                        <strong>Printed By:</strong>
+                        <t t-esc="printed_by"/>
+                    </div>
+                </div>
+
+                <t t-foreach="groups" t-as="g">
+                    <div style="margin-top:20px; page-break-inside: avoid;">
+                        <div class="row" style="font-size:14px;">
+                            <div class="col-8">
+                                <strong t-esc="g['partner'].name"/>
+                            </div>
+                            <div class="col-4 text-end">
+                                Current Balance:
+                                <strong>
+                                    <t t-esc="'{:,.0f}'.format(g['balance'])"/>
+                                </strong>
+                            </div>
+                        </div>
+                        <table class="bd-table" style="margin-top:5px;">
+                            <thead>
+                                <tr style="background-color:#c2d6d6;">
+                                    <th class="text-center">Sr.</th>
+                                    <th class="text-center">Date</th>
+                                    <th class="text-center">Description</th>
+                                    <th class="text-center">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="g['records']" t-as="r">
+                                    <tr>
+                                        <td class="text-center">
+                                            <t t-esc="r_index + 1"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <t t-esc="r.date.strftime('%d-%b-%Y')"/>
+                                        </td>
+                                        <td class="text-start">
+                                            <t t-esc="r.description"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-esc="'{:,.0f}'.format(r.amount)"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                        <div class="text-end" style="font-size:14px; margin-top:5px;">
+                            Net Balance:
+                            <strong>
+                                <t t-esc="'{:,.0f}'.format(g['net'])"/>
+                            </strong>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

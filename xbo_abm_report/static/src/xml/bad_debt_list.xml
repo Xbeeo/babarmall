@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="BadDebtListButtons">
+        <button type="button" class="btn btn-secondary" t-on-click="onClickBadDebtReport">
+            Bad Debt Report
+        </button>
+    </t>
+</templates>

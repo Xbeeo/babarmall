@@ -71,7 +71,7 @@
 
             <!-- Repeats on every page: order/customer summary -->
             <t t-if="o">
-                <t t-if="o.print_count > 0">
+                <t t-if="'print_count' in o._fields and o.print_count > 0">
                     <div style="text-align:right; font-size:10px; font-weight:bold;">DUPLICATE</div>
                 </t>
                 <div class="row" style="font-size: 10px;">
@@ -83,9 +83,10 @@
                         </t>
                     </div>
                     <div class="col-4 text-end">
-                        <t t-if="o.user_id">
+                        <t t-set="op_user" t-value="o.sale_person_id if o._name == 'account.move' else o.user_id"/>
+                        <t t-if="op_user">
                             <strong>Operator:</strong>
-                            <t t-esc="o.user_id.name"/>
+                            <t t-esc="op_user.name"/>
                         </t>
                     </div>
                 </div>
@@ -97,8 +98,10 @@
                         <t t-esc="o.partner_id.name"/>
                     </div>
                     <div class="col-3 text-end">
-                        <t t-if="o.date_order">
-                            <t t-esc="o.date_order.strftime('%d-%b-%Y')"/>
+                        <t t-set="doc_date"
+                           t-value="(o.invoice_date or o.date) if o._name == 'account.move' else o.date_order"/>
+                        <t t-if="doc_date">
+                            <t t-esc="doc_date.strftime('%d-%b-%Y')"/>
                         </t>
                     </div>
                 </div>
@@ -107,7 +110,7 @@
                     <div class="col-6 text-start"></div>
                     <div class="col-3 text-end">
                         <strong>
-                            <t t-esc="o.party_type_id.name"/>
+                            <t t-esc="o.invoice_payment_term_id.name if o._name == 'account.move' and o.move_type == 'out_invoice' else o.party_type_id.name"/>
                         </strong>
                     </div>
                     <div class="col-3 text-end">
@@ -128,14 +131,6 @@
                     </div>
                 </div>
 
-                <!--
-                    NOTE: The following blocks used to appear here (start/end time,
-                    customer name + date_order, party_type + order name). They now
-                    live in the repeating page header inside
-                    custom_external_layout_standard_solo_header, so they show on
-                    every page instead of just once at the top of the document.
-                -->
-
                 <div class="row" style="font-size: 15px;">
                     <div class="col-6" style="text-align: left;">
                         <t t-esc="o.partner_id.city_id.name"/>
@@ -150,9 +145,9 @@
                         <t t-esc="o.partner_id.phone"/>
                     </div>
                     <div class="col-6" style="text-align: right;">
-                        <t t-if="o.user_id.floor_id">
+                        <t t-if="op_user and op_user.floor_id">
                             <strong>
-                                <t t-esc="o.user_id.floor_id.name"/>
+                                <t t-esc="op_user.floor_id.name"/>
                             </strong>
                         </t>
                     </div>

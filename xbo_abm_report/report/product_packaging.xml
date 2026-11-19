@@ -6,7 +6,7 @@
         <xpath expr="//div[@class='page']" position="replace">
             <div class="page">
                 <t t-foreach="docs" t-as="packaging">
-                    <div style="width:3in;border:1px solid #000;">
+                    <div style="width:3in;border:1px solid #000;page-break-inside:avoid;page-break-after:always;">
                         <div class="row">
                             <div class="text-center col-9" >
                                 <strong><span t-field="packaging.company_id.name"/></strong>
